@@ -13,6 +13,8 @@ public class MemoryManager {
     long start;
     long length;
     long end;
+    Allocation left = null;
+    Allocation right = null;
 
     Allocation(long start, long length) {
       this.start = start;
@@ -40,15 +42,23 @@ public class MemoryManager {
 
   public long allocate(long length) {
     if (memory.isEmpty() || memory.root().length < length) {
+      size++;
       return -1;
     }
     Allocation useful = memory.extract();
     Allocation TheUsed = new Allocation(useful.start, length);
-    this.allocations[size++] = TheUsed;
+    TheUsed.left = useful.left;
+    this.allocations[size] = TheUsed;
     if (useful.length > length) {
       Allocation remains = new Allocation(useful.start + length, useful.length - length);
+      TheUsed.right = remains;
+      remains.left = TheUsed;
+      remains.right = useful.right;
       memory.insert(remains);
+    } else {
+      TheUsed.right = useful.right;
     }
+    size++;
     return useful.start;
   }
 

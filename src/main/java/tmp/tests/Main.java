@@ -7,199 +7,248 @@ import java.io.OutputStreamWriter;
 import java.util.StringTokenizer;
 
 public class Main {
-  public static <T extends Comparable<T>> T min(T a, T b) {
-    return (a.compareTo(b) > 0) ? b : a;
+  public static <T extends Comparable<T>> T max(T a, T b) {
+    return (a.compareTo(b) > 0) ? a : b;
   }
 
   public static void main(String[] args) throws Exception {
     BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-    StringTokenizer BaseInputTokenizer = new StringTokenizer(buffer.readLine());
-    int MaxLength = Integer.parseInt(BaseInputTokenizer.nextToken());
-    int amount = Integer.parseInt(BaseInputTokenizer.nextToken());
-    BufferedWriter log = new BufferedWriter(new OutputStreamWriter(System.out));
-    MemoryManager memoryManager = new MemoryManager(MaxLength, amount);
-    for (int i = 1; i <= amount; i++) {
-      StringTokenizer tokenizer = new StringTokenizer(buffer.readLine());
-      int request = Integer.parseInt(tokenizer.nextToken());
-      if (request > 0) {
-        long result = memoryManager.allocate(request);
-        log.write(result + "\n");
-      } else {
-        memoryManager.free(-request);
+    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    StringTokenizer XYZInputTokenizer = new StringTokenizer(buffer.readLine());
+    StringTokenizer LWHInputTokenizer = new StringTokenizer(buffer.readLine());
+    int x = Integer.parseInt(XYZInputTokenizer.nextToken());
+    int y = Integer.parseInt(XYZInputTokenizer.nextToken());
+    int z = Integer.parseInt(XYZInputTokenizer.nextToken());
+    int l = Integer.parseInt(LWHInputTokenizer.nextToken());
+    int w = Integer.parseInt(LWHInputTokenizer.nextToken());
+    int h = Integer.parseInt(LWHInputTokenizer.nextToken());
+
+    Point[][][] ships = new Point[x][y][z];
+    Point[][][] maxs = new Point[x][y][z];
+
+    for (int i = 0; i < x; ++i) {
+      for (int j = 0; j < y; ++j) {
+        StringTokenizer line = new StringTokenizer(buffer.readLine());
+        for (int k = 0; k < z; ++k) {
+          ships[i][j][k] = new Point(i, j, k, Long.parseLong(line.nextToken()));
+        }
       }
     }
-    log.flush();
+
+    for (int i = 0; i < x; ++i) {
+      for (int j = 0; j < y; ++j) {
+        QueueWithMax<Point> segment = new QueueWithMax<Point>(h);
+        for (int k = z - 1; k >= 0; --k) {
+          segment.pushFront(ships[i][j][k]);
+          maxs[i][j][k] = segment.getMax();
+          if (z - k >= h) {
+            segment.popBack();
+          }
+        }
+      }
+    }
+
+    for (int k = 0; k < z; ++k) {
+      for (int j = 0; j < y; ++j) {
+        QueueWithMax<Point> segment = new QueueWithMax<Point>(l);
+        for (int i = x - 1; i >= 0; --i) {
+          segment.pushFront(maxs[i][j][k]);
+          maxs[i][j][k] = segment.getMax();
+          if (x - i >= l) {
+            segment.popBack();
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < x; ++i) {
+      for (int k = 0; k < z; ++k) {
+        QueueWithMax<Point> segment = new QueueWithMax<Point>(w);
+        for (int j = y - 1; j >= 0; --j) {
+          segment.pushFront(maxs[i][j][k]);
+          maxs[i][j][k] = segment.getMax();
+          if (y - j >= w) {
+            segment.popBack();
+          }
+        }
+      }
+    }
+
+    StringTokenizer amountInputTokenizer = new StringTokenizer(buffer.readLine());
+    Stack<Point> path = new Stack<Point>(x * y * z);
+    int amount = Integer.parseInt(amountInputTokenizer.nextToken());
+    for (int i = 0; i < amount; ++i) {
+      StringTokenizer line = new StringTokenizer(buffer.readLine());
+      Point start =
+          ships[Integer.parseInt(line.nextToken())][Integer.parseInt(line.nextToken())][
+              Integer.parseInt(line.nextToken())];
+      Point max = start;
+      do {
+        start = max;
+        path.pushFront(start);
+        max = maxs[start.x][start.y][start.z];
+      } while (!start.equals(max));
+
+      while (!path.isEmpty()) {
+        Point cur = path.popFront();
+        maxs[cur.x][cur.y][cur.z] = max;
+      }
+
+      out.write(max + "\n");
+    }
+    out.flush();
   }
 
-  public static class MemoryManager {
-    private Heap<Allocation> memory;
-    private final Allocation[] allocations;
-    private int size;
+  static class Point implements Comparable<Point> {
+    int x;
+    int y;
+    int z;
+    long val;
 
-    private static class Allocation implements Comparable<Allocation> {
-      long start;
-      long length;
-      long end;
-
-      Allocation(long start, long length) {
-        this.start = start;
-        this.length = length;
-        this.end = start + length;
-      }
-
-      @Override
-      public int compareTo(Allocation o) {
-        if (this.length > o.length) {
-          return 1;
-        } else if (this.length == o.length && this.start < o.start) {
-          return 1;
-        }
-        return -1;
-      }
+    public Point(int x, int y, int z, long val) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+      this.val = val;
     }
 
-    public MemoryManager(int MaxSize, int amount) {
-      this.size = 0;
-      this.memory = new Heap<Allocation>(amount + 1, false);
-      this.memory.insert(new Allocation(1, MaxSize));
-      this.allocations = new Allocation[amount];
+    @Override
+    public int compareTo(Point o) {
+      return Long.compare(val, o.val);
     }
 
-    public long allocate(long length) {
-      if (memory.isEmpty() || memory.root().length < length) {
-        return -1;
-      }
-      Allocation useful = memory.extract();
-      Allocation TheUsed = new Allocation(useful.start, length);
-      this.allocations[size++] = TheUsed;
-      if (useful.length > length) {
-        Allocation remains = new Allocation(useful.start + length, useful.length - length);
-        memory.insert(remains);
-      }
-      return useful.start;
-    }
-
-    public void free(int index) {
-      if (allocations[index - 1] != null) {
-        MergeAllocs(allocations[index - 1]);
-        allocations[index - 1] = null;
-      }
-      size++;
-    }
-
-    private void MergeAllocs(Allocation current) {
-      Heap<Allocation> tmp = new Heap<Allocation>(this.size, false);
-      while (!memory.isEmpty()) {
-        Allocation ToCheck = memory.extract();
-        if (ToCheck.end == current.start || ToCheck.start == current.end) {
-          current =
-              new Allocation(min(ToCheck.start, current.start), ToCheck.length + current.length);
-        } else {
-          tmp.insert(ToCheck);
-        }
-      }
-      tmp.insert(current);
-      this.memory = tmp;
+    @Override
+    public String toString() {
+      return x + " " + y + " " + z;
     }
   }
 
-  public static class Heap<T extends Comparable<T>> {
-    private final Object[] HeapArray;
-    private boolean IsMin = true;
-    private int size = 0;
+  static class Stack<T> {
+    private final Object[] stackArray;
+    private int top;
 
-    public Heap(int maxSize, boolean IsMin) {
-      this.HeapArray = new Object[maxSize];
-      this.IsMin = IsMin;
+    public Stack(int maxSize) {
+      this.stackArray = new Object[maxSize];
+      this.top = -1;
     }
 
-    public Heap(int maxSize) {
-      this.HeapArray = new Object[maxSize];
+    public T front() {
+      return (T) stackArray[top];
     }
 
-    public Heap(boolean IsMin) {
-      this.HeapArray = new Object[1 << 27];
-      this.IsMin = IsMin;
+    public void pushFront(T element) {
+      stackArray[++top] = element;
     }
 
-    public Heap() {
-      this.HeapArray = new Object[1 << 27];
-    }
-
-    private boolean compare(T left, T right) {
-      if (IsMin) {
-        return left.compareTo(right) < 0;
-      } else {
-        return left.compareTo(right) > 0;
-      }
-    }
-
-    private void swap(int left, int right) {
-      T tmp = (T) HeapArray[left];
-      this.HeapArray[left] = HeapArray[right];
-      this.HeapArray[right] = tmp;
-    }
-
-    private void siftUp(int index) {
-      while (index > 0) {
-        int parent = (index - 1) / 2;
-        if (compare((T) HeapArray[index], (T) HeapArray[parent])) {
-          swap(index, parent);
-          index = parent;
-        } else {
-          break;
-        }
-      }
-    }
-
-    private void siftDown(int index) {
-      int leftChild = 2 * index + 1;
-      int rightChild = 2 * index + 2;
-      while (leftChild < size) {
-        if ((rightChild < size)
-            && compare((T) HeapArray[rightChild], (T) HeapArray[leftChild])
-            && compare((T) HeapArray[rightChild], (T) HeapArray[index])) {
-          swap(index, rightChild);
-          index = rightChild;
-        } else if (compare((T) HeapArray[leftChild], (T) HeapArray[index])) {
-          swap(index, leftChild);
-          index = leftChild;
-        } else {
-          break;
-        }
-        leftChild = 2 * index + 1;
-        rightChild = 2 * index + 2;
-      }
-    }
-
-    public void insert(T element) {
-      HeapArray[size] = element;
-      siftUp(size++);
-    }
-
-    public T root() {
-      return (T) HeapArray[0];
-    }
-
-    public T extract() {
-      T result = root();
-      this.HeapArray[0] = HeapArray[--size];
-      if (!isEmpty()) {
-        siftDown(0);
-      }
-      return result;
-    }
-
-    public int size() {
-      return size;
-    }
-
-    public void clear() {
-      size = 0;
+    public T popFront() {
+      return (T) stackArray[top--];
     }
 
     public boolean isEmpty() {
-      return size == 0;
+      return top < 0;
+    }
+
+    public int getSize() {
+      return top + 1;
+    }
+  }
+
+  static class Queue<T> {
+    protected final Stack<T> left;
+    protected final Stack<T> right;
+
+    public Queue(int maxSize) {
+      this.left = new Stack<T>(maxSize);
+      this.right = new Stack<T>(maxSize);
+    }
+
+    private void moveStacksElements() {
+      if (right.isEmpty()) {
+        while (!left.isEmpty()) {
+          right.pushFront(left.popFront());
+        }
+      }
+    }
+
+    public void pushFront(T element) {
+      left.pushFront(element);
+    }
+
+    public T back() {
+      moveStacksElements();
+      return right.front();
+    }
+
+    public T popBack() {
+      moveStacksElements();
+      return right.popFront();
+    }
+
+    public boolean isEmpty() {
+      return left.isEmpty() && right.isEmpty();
+    }
+
+    public int getSize() {
+      return left.getSize() + right.getSize();
+    }
+  }
+
+  static class QueueWithMax<T extends Comparable<T>> extends Queue<T> {
+    private final Stack<T> leftMax;
+    private final Stack<T> rightMax;
+
+    public QueueWithMax(int maxSize) {
+      super(maxSize);
+      this.leftMax = new Stack<T>(maxSize);
+      this.rightMax = new Stack<T>(maxSize);
+    }
+
+    private void moveStacksElements() {
+      if (super.right.isEmpty()) {
+        while (!super.left.isEmpty()) {
+          if (super.right.isEmpty()) {
+            rightMax.pushFront(super.left.front());
+          } else {
+            rightMax.pushFront(max(rightMax.front(), super.left.front()));
+          }
+          super.right.pushFront(super.left.popFront());
+          leftMax.popFront();
+        }
+      }
+    }
+
+    @Override
+    public void pushFront(T element) {
+      moveStacksElements();
+      super.left.pushFront(element);
+      if (leftMax.isEmpty()) {
+        leftMax.pushFront(element);
+      } else {
+        leftMax.pushFront(max(element, leftMax.front()));
+      }
+    }
+
+    @Override
+    public T popBack() {
+      moveStacksElements();
+      rightMax.popFront();
+      return super.right.popFront();
+    }
+
+    @Override
+    public T back() {
+      moveStacksElements();
+      return super.right.front();
+    }
+
+    public T getMax() {
+      if (leftMax.isEmpty()) {
+        return rightMax.front();
+      } else if (rightMax.isEmpty()) {
+        return leftMax.front();
+      }
+      return max(leftMax.front(), rightMax.front());
     }
   }
 }
