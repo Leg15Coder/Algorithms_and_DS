@@ -1,4 +1,4 @@
-package structures;
+package structures.basic;
 
 public class MinMaxHeap<T extends Comparable<T>> {
   private final Heap<T> MinHeap;

@@ -1,6 +1,6 @@
 package memory.manager;
 
-import structures.Heap;
+import structures.basic.Heap;
 
 import static utils.Compare.min;
 

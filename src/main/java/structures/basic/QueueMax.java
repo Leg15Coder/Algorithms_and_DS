@@ -1,4 +1,6 @@
-package structures;
+package structures.basic;
+
+import structures.basic.Stack;
 
 import static utils.Compare.max;
 

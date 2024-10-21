@@ -1,6 +1,6 @@
 package sortings;
 
-import structures.Queue;
+import structures.basic.Queue;
 
 class Sortings {
   public static long MergeSort(long[] array) {

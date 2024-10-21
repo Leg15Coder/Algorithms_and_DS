@@ -1,4 +1,4 @@
-package structures;
+package structures.basic;
 
 public class Heap<T extends Comparable<T>> {
   private final Object[] HeapArray;

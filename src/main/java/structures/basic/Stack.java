@@ -1,4 +1,4 @@
-package structures;
+package structures.basic;
 
 class Stack<T> {
   private final Object[] stackArray;

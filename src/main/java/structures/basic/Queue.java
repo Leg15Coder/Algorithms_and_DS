@@ -1,4 +1,6 @@
-package structures;
+package structures.basic;
+
+import structures.basic.Stack;
 
 public class Queue<T> {
   protected final Stack<T> left;
