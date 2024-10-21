@@ -56,7 +56,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     add(this.root, value);
   }
 
-  private void add(Node cur, T value) {
+  protected void add(Node cur, T value) {
     if (cur.value.equals(value)) {
       cur.increase();
     } else if (cur.value.compareTo(value) > 0) {
@@ -83,7 +83,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     return false;
   }
 
-  private Node remove(Node cur, T value) {
+  protected Node remove(Node cur, T value) {
     if (cur == null) {
       return null;
     }
@@ -109,7 +109,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     return cur;
   }
 
-  private Node delete(Node cur, T value) {
+  protected Node delete(Node cur, T value) {
     if (cur == null) {
       return null;
     }
@@ -148,7 +148,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     return getMin(this.root).value;
   }
 
-  private Node getMin(Node cur) {
+  protected Node getMin(Node cur) {
     if (cur.getLeft() == null) {
       return cur;
     }
@@ -163,14 +163,14 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     return getMax(this.root).value;
   }
 
-  private Node getMax(Node cur) {
+  protected Node getMax(Node cur) {
     if (cur.getRight() == null) {
       return cur;
     }
     return getMax(cur.getRight());
   }
 
-  private boolean get(Node cur, T value) {
+  protected boolean get(Node cur, T value) {
     if (cur.value.equals(value)) {
       return true;
     } else if (cur.value.compareTo(value) > 0 && cur.getLeft() != null) {
