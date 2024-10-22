@@ -131,4 +131,14 @@ class BinarySearchTreeTest {
     tree.clear();
     assertTrue(tree.isEmpty());
   }
+
+  @Test
+  void next() {
+    assertNotNull(null); // todo later
+  }
+
+  @Test
+  void delete() {
+    assertNotNull(null); // todo later
+  }
 }

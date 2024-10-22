@@ -2,15 +2,18 @@ package structures.trees.search;
 
 import static utils.Compare.max;
 
-public class AVLSearchTree<T extends Comparable<T>> extends BinarySearchTree<T> implements AVLSearchTreeInterface<T> {
-  private class Node extends BinarySearchTree<T>.Node {
+public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeInterface<T> {
+  protected class Node {
+    Node left = null;
+    Node right = null;
+    T value;
+    long count = 0;
     int diff = 0;
     int height = 1;
-    Node left;
-    Node right;
 
     public Node(T value) {
-      super(value);
+      this.value = value;
+      increase();
       calculateDiff();
     }
 
@@ -34,173 +37,273 @@ public class AVLSearchTree<T extends Comparable<T>> extends BinarySearchTree<T> 
       }
     }
 
-    @Override
-    public void setRight(BinarySearchTree<T>.Node right) {
-      this.right = (Node) right;
-      super.setRight(right);
+    public void setLeft(Node left) {
+      this.left = left;
       calculateDiff();
     }
 
-    @Override
-    public void setLeft(BinarySearchTree<T>.Node left) {
-      this.left = (Node) left;
-      super.setLeft(left);
+    public void setRight(Node right) {
+      this.right = right;
       calculateDiff();
     }
 
-    @Override
     public Node getLeft() {
-      return (Node) super.getLeft();
+      calculateDiff();
+      return this.left;
     }
 
-    @Override
     public Node getRight() {
-      return (Node) super.getRight();
+      calculateDiff();
+      return this.right;
+    }
+
+    public T getValue() {
+      return this.value;
+    }
+
+    public void increase() {
+      this.count++;
+    }
+
+    public void decrease() {
+      this.count--;
+    }
+
+    public boolean empty() {
+      return this.count <= 0;
     }
   }
 
   Node root = null;
 
-  @Override
-  public T next(T value) {
-    return next((Node) this.root, value);
-  }
-
-  private T next(Node cur, T value) {
-    if (cur == null) {
-      return null;
-    }
-    if (cur.value.compareTo(value) > 0 && cur.getLeft() != null) {
-      Node tmp = (Node) next((Node) cur.getLeft(), value);
-      if (tmp == null) {
-        return cur.getValue();
-      }
-      return tmp.getValue();
-    }
-    if (cur.value.compareTo(value) < 0 && cur.getRight() != null) {
-      return next((Node) cur.getRight(), value);
-    }
-    return null;
-  }
-
   private Node balance(Node cur) {
     if (cur == null) {
       return null;
     }
-    if (cur.diff() == -1) {
-      return leftRotate(cur);
-    } else if (cur.diff() == 1) {
+    int dif = cur.diff();
+    if (dif > 1) {
+      if ((cur.getLeft()).diff() < 0) {
+        cur.setLeft(leftRotate( cur.getLeft()));
+      }
       return rightRotate(cur);
-    } else if (cur.diff() == -2) {
-      return bigLeftRotate(cur);
-    } else if (cur.diff() == 2) {
-      return bigRightRotate(cur);
     }
-    return null;
+    if (dif < -1) {
+      if ((cur.getRight()).diff() > 0) {
+        cur.setRight(rightRotate( cur.getRight()));
+      }
+      return leftRotate(cur);
+    }
+    return cur;
   }
 
-  private void balanceChildren(Node cur) {
-    cur.setLeft(balance((Node) cur.getLeft()));
-    cur.setRight(balance((Node) cur.getRight()));
-  }
 
   private void balanceRoot() {
-    this.root = balance((Node) this.root);
+    this.root = balance(this.root);
   }
 
   private Node leftRotate(Node cur) {
-    Node x = (Node) cur.getRight();
-    Node a = (Node) cur.getLeft();
-    Node b = (Node) x.getLeft();
-    Node c = (Node) x.getRight();
-    cur.setLeft(a);
-    cur.setRight(b);
-    x.setLeft(cur);
-    x.setRight(c);
-    return x;
+    Node newRoot = cur.getRight();
+    cur.setRight(newRoot.getLeft());
+    newRoot.setLeft(cur);
+    return newRoot;
   }
 
   private Node rightRotate(Node cur) {
-    Node x = (Node) cur.getLeft();
-    Node a = (Node) x.getLeft();
-    Node b = (Node) x.getRight();
-    Node c = (Node) cur.getRight();
-    x.setLeft(a);
-    x.setRight(cur);
-    cur.setLeft(b);
-    cur.setRight(c);
-    return x;
+    Node newRoot = cur.getLeft();
+    cur.setLeft(newRoot.getRight());
+    newRoot.setRight(cur);
+    return newRoot;
   }
 
-  private Node bigLeftRotate(Node cur) {
-    Node x = (Node) cur.getRight();
-    Node y = (Node) x.getLeft();
-    Node a = (Node) cur.getLeft();
-    Node b = (Node) y.getLeft();
-    Node c = (Node) y.getRight();
-    Node d = (Node) x.getRight();
-    y.setLeft(cur);
-    y.setRight(x);
-    cur.setLeft(a);
-    cur.setRight(b);
-    x.setLeft(c);
-    x.setRight(d);
-    return y;
-  }
-
-  private Node bigRightRotate(Node cur) {
-    Node x = (Node) cur.getLeft();
-    Node y = (Node) x.getRight();
-    Node a = (Node) x.getLeft();
-    Node b = (Node) y.getLeft();
-    Node c = (Node) y.getRight();
-    Node d = (Node) cur.getRight();
-    y.setRight(cur);
-    y.setLeft(x);
-    cur.setLeft(c);
-    cur.setRight(d);
-    x.setLeft(a);
-    x.setRight(b);
-    return y;
-  }
 
   @Override
   public void add(T value) {
     if (isEmpty()) {
       this.root = new Node(value);
-      // balanceRoot();
       return;
     }
     add(this.root, value);
+    balanceRoot();
   }
 
-  @Override
-  protected void add(BinarySearchTree<T>.Node cur, T value) {
-    super.add(cur, value);
-    // balanceChildren((Node) cur);
+  protected void add(Node cur, T value) {
+    if (cur.value.equals(value)) {
+      cur.increase();
+    } else if (cur.value.compareTo(value) > 0) {
+      if (cur.getLeft() == null) {
+        cur.setLeft(new Node(value));
+      } else {
+        add(cur.getLeft(), value);
+        cur.setLeft(balance(cur.getLeft()));
+      }
+    } else {
+      if (cur.getRight() == null) {
+        cur.setRight(new Node(value));
+      } else {
+        add(cur.getRight(), value);
+        cur.setRight(balance(cur.getRight()));
+      }
+    }
   }
 
   @Override
   public boolean remove(T value) {
     if (get(this.root, value)) {
-      this.root = (Node) remove(this.root, value);
-      // balanceRoot();
+      this.root = remove(this.root, value);
+      balanceRoot();
       return true;
     }
     return false;
   }
 
-  @Override
-  protected BinarySearchTree<T>.Node remove(BinarySearchTree<T>.Node cur, T value) {
-    BinarySearchTree<T>.Node tmp = super.remove(cur, value);
-    // balanceChildren((Node) cur);
-    return tmp;
+  protected Node remove(Node cur, T value) {
+    if (cur == null) {
+      return null;
+    }
+    if (cur.getValue().compareTo(value) > 0) {
+      cur.setLeft(remove(cur.getLeft(), value));
+      cur.setLeft(balance(cur.getLeft()));
+    } else if (cur.getValue().compareTo(value) < 0) {
+      cur.setRight(remove(cur.getRight(), value));
+      cur.setRight(balance(cur.getRight()));
+    } else {
+      cur.decrease();
+      if (cur.empty()) {
+        if (cur.getLeft() == null) {
+          return cur.getRight();
+        }
+        if (cur.getRight() == null) {
+          return cur.getLeft();
+        }
+        Node mn = getMin(cur.getRight());
+        cur.value = mn.value;
+        cur.count = mn.count;
+        cur.setRight(delete(cur.getRight(), cur.getValue()));
+        cur.setRight(balance(cur.getRight()));
+      }
+    }
+    return cur;
   }
 
   @Override
-  protected BinarySearchTree<T>.Node delete(BinarySearchTree<T>.Node cur, T value) {
-    BinarySearchTree<T>.Node tmp = super.delete(cur, value);
-    // balanceChildren((Node) cur);
-    return tmp;
+  public boolean delete(T value) {
+    if (get(this.root, value)) {
+      this.root = delete(this.root, value);
+      balanceRoot();
+      return true;
+    }
+    return false;
+  }
+
+  protected Node delete(Node cur, T value) {
+    if (cur == null) {
+      return null;
+    }
+    if (cur.getValue().compareTo(value) > 0) {
+      cur.setLeft(remove(cur.getLeft(), value));
+      cur.setLeft(balance(cur.getLeft()));
+    } else if (cur.getValue().compareTo(value) < 0) {
+      cur.setRight(remove(cur.getRight(), value));
+      cur.setRight(balance(cur.getRight()));
+    } else {
+      if (cur.getLeft() == null) {
+        return cur.getRight();
+      }
+      if (cur.getRight() == null) {
+        return cur.getLeft();
+      }
+      Node mn = getMin(cur.getRight());
+      cur.value = mn.value;
+      cur.count = mn.count;
+      cur.setRight(delete(cur.getRight(), cur.getValue()));
+      cur.setRight(balance(cur.getRight()));
+    }
+    return cur;
+  }
+
+  @Override
+  public T next(T value) {
+    if (!isEmpty()) {
+      return next(this.root, value);
+    }
+    return null;
+  }
+
+  protected T next(Node cur, T value) {
+    if (cur.getValue().equals(value)) {
+      return value;
+    } else if (cur.getValue().compareTo(value) > 0 && cur.getLeft() != null) {
+      T tmp = next(cur.getLeft(), value);
+      if (tmp == null || tmp.compareTo(cur.getValue()) > 0) {
+        return cur.getValue();
+      }
+      return tmp;
+    } else if (cur.getValue().compareTo(value) < 0 && cur.getRight() != null) {
+      return next(cur.getRight(), value);
+    }
+    if (cur.getValue().compareTo(value) > 0) {
+      return cur.getValue();
+    }
+    return null;
+  }
+
+  @Override
+  public boolean get(T value) {
+    if (!isEmpty()) {
+      return get(this.root, value);
+    }
+    return false;
+  }
+
+  protected boolean get(Node cur, T value) {
+    if (cur.value.equals(value)) {
+      return true;
+    } else if (cur.value.compareTo(value) > 0 && cur.getLeft() != null) {
+      return get(cur.getLeft(), value);
+    } else if (cur.value.compareTo(value) < 0 && cur.getRight() != null) {
+      return get(cur.getRight(), value);
+    }
+    return false;
+  }
+
+  @Override
+  public T getMin() {
+    if (isEmpty()) {
+      return null;
+    }
+    return getMin(this.root).getValue();
+  }
+
+  protected Node getMin(Node cur) {
+    if (cur.getLeft() == null) {
+      return cur;
+    }
+    return getMin(cur.getLeft());
+  }
+
+  @Override
+  public T getMax() {
+    if (isEmpty()) {
+      return null;
+    }
+    return getMax(this.root).getValue();
+  }
+
+    protected Node getMax(Node cur) {
+    if (cur.getRight() == null) {
+      return cur;
+    }
+    return getMax(cur.getRight());
+  }
+
+
+  @Override
+  public boolean isEmpty() {
+    return root == null;
+  }
+
+  @Override
+  public void clear() {
+    this.root = null;
   }
 }

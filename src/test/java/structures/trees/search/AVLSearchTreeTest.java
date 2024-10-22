@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AVLSearchTreeTest {
 
-
   Random rnd = new Random();
 
   @Test
@@ -142,9 +141,9 @@ class AVLSearchTreeTest {
     Long mx = null;
     AVLSearchTree<Long> tree = new AVLSearchTree<>();
     for (int i = 0; i < size; ++i) {
-      long tmp = rnd.nextLong();
-      if (mx == null || tmp > mx) {
-        mx = tmp;
+      long tmp = rnd.nextLong(-1000000000, 1000000000);
+      if (mx == null || tmp * 2 > mx) {
+        mx = tmp * 2;
       }
       tree.add(tmp * 2);
       if (i < n) {
@@ -153,19 +152,52 @@ class AVLSearchTreeTest {
     }
     for (int i = 0; i < n; ++i) {
       assertEquals(tree.next(toCheck[i] - 1), toCheck[i]);
-      assertEquals(tree.next(toCheck[i] + 1), toCheck[i]);
+      assertEquals(tree.next(toCheck[i]), toCheck[i]);
     }
     assertEquals(tree.next(mx), mx);
     assertNull(tree.next(mx + 1));
   }
 
   @Test
-  void testAdd() {
+  void delete() {
     assertNotNull(null); // todo later
   }
 
   @Test
+  void testAdd() {
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    for (int i = 0; i < (1 << 18); ++i) {
+      tree.add(rnd.nextLong());
+    }
+    int dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
+    tree.clear();
+    for (long i = 0; i < 100; ++i) {
+      tree.add(i);
+    }
+    dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
+  }
+
+  @Test
   void testRemove() {
-    assertNotNull(null); // todo later
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    for (int i = 0; i < (1 << 18); ++i) {
+      tree.add(rnd.nextLong());
+    }
+    for (int i = 0; i < (1 << 18); ++i) {
+      tree.remove(rnd.nextLong());
+    }
+    int dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
+    tree.clear();
+    for (long i = 0; i <= 100; ++i) {
+      tree.add(i);
+    }
+    for (long i = 0; i < 100; i+=2) {
+      tree.remove(i);
+    }
+    dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
   }
 }

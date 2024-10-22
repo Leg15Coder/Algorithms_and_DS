@@ -5,6 +5,8 @@ public interface BinarySearchTreeInterface<T extends Comparable<T>> {
 
   boolean remove(T value);
 
+  boolean delete(T value);
+
   boolean get(T value);
 
   T getMin();
@@ -14,4 +16,6 @@ public interface BinarySearchTreeInterface<T extends Comparable<T>> {
   boolean isEmpty();
 
   void clear();
+
+  T next(T value);
 }

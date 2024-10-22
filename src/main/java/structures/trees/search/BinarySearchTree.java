@@ -83,6 +83,15 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     return false;
   }
 
+  @Override
+  public boolean delete(T value) {
+    if (get(this.root, value)) {
+      this.root = delete(this.root, value);
+      return true;
+    }
+    return false;
+  }
+
   protected Node remove(Node cur, T value) {
     if (cur == null) {
       return null;
@@ -189,5 +198,10 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
   @Override
   public void clear() {
     this.root = null;
+  }
+
+  @Override
+  public T next(T value) {
+    return null; // todo later
   }
 }
