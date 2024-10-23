@@ -41,13 +41,43 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
 
     @Override
     public int compareTo(Node o) {
+      if (this.getPriority() > o.getPriority()) {
+        return 1;
+      }
+      if (this.getPriority() < o.getPriority()) {
+        return -1;
+      }
       if (this.getValue().compareTo(o.getValue()) > 0) {
         return 1;
       }
       if (this.getValue().compareTo(o.getValue()) < 0) {
         return -1;
       }
-      return Integer.compare(this.getPriority(), o.getPriority());
+      return 0;
+    }
+
+    public String toString(Node parent) {
+      String result = "";
+      String cur = "";
+      if (parent == null) {
+        cur += "0 ";
+      } else {
+        cur += parent.getValue() + " ";
+      }
+      if (this.getLeft() != null) {
+        result += this.getLeft().toString(this);
+        cur += this.getLeft().getValue() + " ";
+      } else {
+        cur += "0 ";
+      }
+      if (this.getRight() != null) {
+        result += this.getRight().toString(this);
+        cur += this.getRight().getValue() + "";
+      } else {
+        cur += "0";
+      }
+      result += "\n" + cur;
+      return result;
     }
   }
 
@@ -66,9 +96,6 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   }
 
   private Node merge(Node left, Node right) {
-    if (right == null && left == null) {
-      return null;
-    }
     if (left == null) {
       return right;
     }
@@ -80,10 +107,11 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       left = right;
       right = tmp;
     }
-    Node newLeft = left.getRight();
-    Node newRight = right.getLeft();
-    left.setRight(right);
-    right.setRight(merge(newLeft, newRight));
+    if (left.getValue().compareTo(right.getValue()) > 0) {
+      left.setLeft(merge(left.getLeft(), right));
+    } else {
+      left.setRight(merge(left.getRight(), right));
+    }
     return left;
   }
 
@@ -177,5 +205,13 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   @Override
   public void clear() {
     this.root = null;
+  }
+
+  @Override
+  public String toString() {
+    if (isEmpty()) {
+      return "null";
+    }
+    return this.root.toString(null);
   }
 }
