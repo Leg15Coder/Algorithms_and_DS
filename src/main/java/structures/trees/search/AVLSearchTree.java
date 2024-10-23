@@ -10,6 +10,7 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
     long count = 0;
     int diff = 0;
     int height = 1;
+    int order = 0;
 
     public Node(T value) {
       this.value = value;
@@ -25,15 +26,19 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
       if (left == null && right == null) {
         this.diff = 0;
         this.height = 1;
+        this.order = (int) count;
       } else if (left == null) {
         this.diff = -right.height;
         this.height = right.height + 1;
+        this.order = (int) count;
       } else if (right == null) {
         this.diff = left.height;
         this.height = left.height + 1;
+        this.order = left.order + (int) count;
       } else {
         this.diff = left.height - right.height;
         this.height = max(left.height, right.height) + 1;
+        this.order = left.order + (int) count;
       }
     }
 
@@ -63,10 +68,12 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
 
     public void increase() {
       this.count++;
+      this.order++;
     }
 
     public void decrease() {
       this.count--;
+      this.order--;
     }
 
     public boolean empty() {
@@ -75,6 +82,7 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
   }
 
   Node root = null;
+  int size = 0;
 
   private Node balance(Node cur) {
     if (cur == null) {
@@ -119,6 +127,7 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
   @Override
   public void add(T value) {
     if (isEmpty()) {
+      this.size++;
       this.root = new Node(value);
       return;
     }
@@ -168,6 +177,7 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
       cur.setRight(balance(cur.getRight()));
     } else {
       cur.decrease();
+      this.size--;
       if (cur.empty()) {
         if (cur.getLeft() == null) {
           return cur.getRight();
@@ -213,6 +223,7 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
         return cur.getLeft();
       }
       Node mn = getMin(cur.getRight());
+      this.size -= (int) cur.count;
       cur.value = mn.value;
       cur.count = mn.count;
       cur.setRight(delete(cur.getRight(), cur.getValue()));
@@ -229,6 +240,19 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
     return null;
   }
 
+  @Override
+  public T previous(T value) {
+    if (!isEmpty()) {
+      return previous(this.root, value);
+    }
+    return null;
+  }
+
+  @Override
+  public int size() {
+    return size;
+  }
+
   protected T next(Node cur, T value) {
     if (cur.getValue().equals(value)) {
       return value;
@@ -242,6 +266,24 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
       return next(cur.getRight(), value);
     }
     if (cur.getValue().compareTo(value) > 0) {
+      return cur.getValue();
+    }
+    return null;
+  }
+
+  protected T previous(Node cur, T value) {
+    if (cur.getValue().equals(value)) {
+      return value;
+    } else if (cur.getValue().compareTo(value) > 0 && cur.getLeft() != null) {
+      return previous(cur.getLeft(), value);
+    } else if (cur.getValue().compareTo(value) < 0 && cur.getRight() != null) {
+      T tmp = previous(cur.getRight(), value);
+      if (tmp == null || tmp.compareTo(cur.getValue()) < 0) {
+        return cur.getValue();
+      }
+      return tmp;
+    }
+    if (cur.getValue().compareTo(value) < 0) {
       return cur.getValue();
     }
     return null;
@@ -296,6 +338,22 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
     return getMax(cur.getRight());
   }
 
+  public T getAt(int order) {
+    if (order < 1 || order > size()) {
+      return null;
+    }
+    return getAt(this.root, order);
+  }
+
+  private T getAt(Node cur, int order) {
+    if (cur.order - cur.count < order && order <= cur.order) {
+      return cur.getValue();
+    }
+    if (cur.order - cur.count <= order) {
+      return getAt(cur.getLeft(), order);
+    }
+    return getAt(cur.getRight(), order);
+  }
 
   @Override
   public boolean isEmpty() {
@@ -304,6 +362,7 @@ public class AVLSearchTree<T extends Comparable<T>> implements BinarySearchTreeI
 
   @Override
   public void clear() {
+    this.size = 0;
     this.root = null;
   }
 }

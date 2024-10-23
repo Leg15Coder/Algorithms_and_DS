@@ -18,4 +18,8 @@ public interface BinarySearchTreeInterface<T extends Comparable<T>> {
   void clear();
 
   T next(T value);
+
+  T previous(T value);
+
+  int size();
 }

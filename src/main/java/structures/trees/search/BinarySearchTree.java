@@ -204,4 +204,14 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
   public T next(T value) {
     return null; // todo later
   }
+
+  @Override
+  public T previous(T value) {
+    return null; // todo later
+  }
+
+  @Override
+  public int size() {
+    return 0; // todo later
+  }
 }
