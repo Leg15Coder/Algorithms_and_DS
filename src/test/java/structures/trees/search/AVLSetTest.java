@@ -2,18 +2,18 @@ package structures.trees.search;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AVLSearchTreeTest {
+class AVLSetTest {
+
 
   Random rnd = new Random();
 
   @Test
   void add() {
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     tree.add(rnd.nextLong());
     assertNotNull(tree.root);
   }
@@ -26,7 +26,7 @@ class AVLSearchTreeTest {
     int m = rnd.nextInt(sizeNotUniq);
     Long[] toCheckUniq = new Long[n];
     Long[] toCheckNotUniq = new Long[m];
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
       Long tmp = rnd.nextLong();
       boolean flag = true;
@@ -53,7 +53,7 @@ class AVLSearchTreeTest {
     }
     for (Long toCheck : toCheckNotUniq) {
       assertTrue(tree.remove(toCheck));
-      assertTrue(tree.remove(toCheck));
+      assertFalse(tree.remove(toCheck));
     }
     for (Long toCheck : toCheckUniq) {
       assertTrue(tree.remove(toCheck));
@@ -67,7 +67,7 @@ class AVLSearchTreeTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n+1];
     toCheck[0] = rnd.nextLong();
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
       while (tmp == toCheck[0]) {
@@ -88,7 +88,7 @@ class AVLSearchTreeTest {
   void getMin() {
     int size = rnd.nextInt(1000);
     Long mn = null;
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
       if (mn == null || tmp.compareTo(mn) < 0) {
@@ -103,7 +103,7 @@ class AVLSearchTreeTest {
   void getMax() {
     int size = rnd.nextInt(1000);
     Long mx = null;
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
       if (mx == null || tmp.compareTo(mx) > 0) {
@@ -116,7 +116,7 @@ class AVLSearchTreeTest {
 
   @Test
   void isEmpty() {
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     tree.add(rnd.nextLong());
     tree.clear();
     assertNull(tree.root);
@@ -125,7 +125,7 @@ class AVLSearchTreeTest {
   @Test
   void clear() {
     int size = rnd.nextInt(1000);
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < size; ++i) {
       tree.add(rnd.nextLong());
     }
@@ -139,7 +139,7 @@ class AVLSearchTreeTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n];
     Long mx = null;
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong(-1000000000, 1000000000);
       if (mx == null || tmp * 2 > mx) {
@@ -164,7 +164,7 @@ class AVLSearchTreeTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n];
     Long mn = null;
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong(-1000000000, 1000000000);
       if (mn == null || tmp * 2 < mn) {
@@ -185,12 +185,12 @@ class AVLSearchTreeTest {
 
   @Test
   void delete() {
-    assertNotNull(null); // todo later
+    remove();
   }
 
   @Test
   void testAdd() {
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < (1 << 18); ++i) {
       tree.add(rnd.nextLong());
     }
@@ -206,7 +206,7 @@ class AVLSearchTreeTest {
 
   @Test
   void testRemove() {
-    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    AVLSet<Long> tree = new AVLSet<>();
     for (int i = 0; i < (1 << 18); ++i) {
       tree.add(rnd.nextLong());
     }
@@ -224,5 +224,75 @@ class AVLSearchTreeTest {
     }
     dif = tree.root.diff();
     assertTrue(dif > -2 && dif < 2);
+  }
+
+  @Test
+  void size() {
+    int sizeUniq = rnd.nextInt(10000);
+    Long[] toCheckUniq = new Long[sizeUniq];
+    AVLSet<Long> tree = new AVLSet<>();
+    for (int i = 0; i < sizeUniq; ++i) {
+      Long tmp = rnd.nextLong();
+      boolean flag = true;
+      while (flag) {
+        flag = false;
+        for (Long toCheck : toCheckUniq) {
+          if (Objects.equals(toCheck, tmp)) {
+            flag = true;
+            break;
+          }
+        }
+        tmp = rnd.nextLong();
+      }
+      tree.add(tmp);
+      tree.add(tmp);
+      toCheckUniq[i] = tmp;
+    }
+    for (int i = 0; i < sizeUniq; i+=2) {
+      tree.remove(toCheckUniq[i]);
+      tree.remove(toCheckUniq[i]);
+    }
+    assertEquals(tree.size(), sizeUniq / 2);
+  }
+
+  @Test
+  void getAt() {
+    int sizeUniq = rnd.nextInt(1000);
+    Long[] toCheckUniq = new Long[sizeUniq];
+    AVLSet<Long> tree = new AVLSet<>();
+    for (int i = 0; i < sizeUniq; ++i) {
+      Long tmp = rnd.nextLong(-1000, 1000);
+      boolean flag = true;
+      while (flag) {
+        flag = false;
+        for (Long toCheck : toCheckUniq) {
+          if (toCheck == null) {
+            continue;
+          }
+          if (toCheck == tmp) {
+            flag = true;
+            System.out.println("TRUE " + tmp);
+            break;
+          }
+        }
+        tmp = rnd.nextLong(-1000, 1000);
+      }
+      tree.add(tmp);
+      toCheckUniq[i] = tmp;
+    }
+    Arrays.sort(toCheckUniq);
+    for (Long tmp : toCheckUniq) {
+      System.out.print(tmp + " ");
+    }
+    System.out.println();
+    System.out.println(tree.root.order + " " + tree.root.getValue() + " " + sizeUniq + " " + tree.size());
+    for (int i = 1; i <= sizeUniq; ++i) {
+      System.out.println(i + " " + toCheckUniq[i - 1] + " " + tree.getAt(i));
+      assertEquals(tree.getAt(i), toCheckUniq[i - 1]); // todo later: Test throws assert while getAt() function correct
+    }
+    for (int i = sizeUniq + 1; i <= 2 * sizeUniq; ++i) {
+      assertNull(tree.getAt(i));
+      assertNull(tree.getAt(-i));
+    }
   }
 }
