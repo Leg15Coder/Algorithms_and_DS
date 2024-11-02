@@ -4,15 +4,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class BinarySearchTreeTest {
+class AVLSearchTreeTest {
 
   Random rnd = new Random();
 
   @Test
   void add() {
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     tree.add(rnd.nextLong());
     assertNotNull(tree.root);
   }
@@ -25,7 +26,7 @@ class BinarySearchTreeTest {
     int m = rnd.nextInt(sizeNotUniq);
     Long[] toCheckUniq = new Long[n];
     Long[] toCheckNotUniq = new Long[m];
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
       Long tmp = rnd.nextLong();
       boolean flag = true;
@@ -66,7 +67,7 @@ class BinarySearchTreeTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n+1];
     toCheck[0] = rnd.nextLong();
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
       while (tmp == toCheck[0]) {
@@ -87,7 +88,7 @@ class BinarySearchTreeTest {
   void getMin() {
     int size = rnd.nextInt(1000);
     Long mn = null;
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
       if (mn == null || tmp.compareTo(mn) < 0) {
@@ -102,7 +103,7 @@ class BinarySearchTreeTest {
   void getMax() {
     int size = rnd.nextInt(1000);
     Long mx = null;
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
       if (mx == null || tmp.compareTo(mx) > 0) {
@@ -115,7 +116,7 @@ class BinarySearchTreeTest {
 
   @Test
   void isEmpty() {
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     tree.add(rnd.nextLong());
     tree.clear();
     assertNull(tree.root);
@@ -124,7 +125,7 @@ class BinarySearchTreeTest {
   @Test
   void clear() {
     int size = rnd.nextInt(1000);
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
     for (int i = 0; i < size; ++i) {
       tree.add(rnd.nextLong());
     }
@@ -134,11 +135,94 @@ class BinarySearchTreeTest {
 
   @Test
   void next() {
-    assertNotNull(null); // todo later
+    int size = rnd.nextInt(1000);
+    int n = rnd.nextInt(size);
+    long[] toCheck = new long[n];
+    Long mx = null;
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong(-1000000000, 1000000000);
+      if (mx == null || tmp * 2 > mx) {
+        mx = tmp * 2;
+      }
+      tree.add(tmp * 2);
+      if (i < n) {
+        toCheck[i] = tmp * 2;
+      }
+    }
+    for (int i = 0; i < n; ++i) {
+      assertEquals(tree.next(toCheck[i] - 1), toCheck[i]);
+      assertEquals(tree.next(toCheck[i]), toCheck[i]);
+    }
+    assertEquals(tree.next(mx), mx);
+    assertNull(tree.next(mx + 1));
+  }
+
+  @Test
+  void previous() {
+    int size = rnd.nextInt(1000);
+    int n = rnd.nextInt(size);
+    long[] toCheck = new long[n];
+    Long mn = null;
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong(-1000000000, 1000000000);
+      if (mn == null || tmp * 2 < mn) {
+        mn = tmp * 2;
+      }
+      tree.add(tmp * 2);
+      if (i < n) {
+        toCheck[i] = tmp * 2;
+      }
+    }
+    for (int i = 0; i < n; ++i) {
+      assertEquals(tree.previous(toCheck[i] + 1), toCheck[i]);
+      assertEquals(tree.previous(toCheck[i]), toCheck[i]);
+    }
+    assertEquals(tree.previous(mn), mn);
+    assertNull(tree.previous(mn - 1));
   }
 
   @Test
   void delete() {
     assertNotNull(null); // todo later
+  }
+
+  @Test
+  void testAdd() {
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    for (int i = 0; i < (1 << 18); ++i) {
+      tree.add(rnd.nextLong());
+    }
+    int dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
+    tree.clear();
+    for (long i = 0; i < 100; ++i) {
+      tree.add(i);
+    }
+    dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
+  }
+
+  @Test
+  void testRemove() {
+    AVLSearchTree<Long> tree = new AVLSearchTree<>();
+    for (int i = 0; i < (1 << 18); ++i) {
+      tree.add(rnd.nextLong());
+    }
+    for (int i = 0; i < (1 << 18); ++i) {
+      tree.remove(rnd.nextLong());
+    }
+    int dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
+    tree.clear();
+    for (long i = 0; i <= 100; ++i) {
+      tree.add(i);
+    }
+    for (long i = 0; i < 100; i+=2) {
+      tree.remove(i);
+    }
+    dif = tree.root.diff();
+    assertTrue(dif > -2 && dif < 2);
   }
 }
