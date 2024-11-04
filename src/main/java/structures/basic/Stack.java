@@ -1,36 +1,25 @@
 package structures.basic;
 
 class Stack<T> {
-  private final Object[] stackArray;
-  private int top;
-
-  public Stack(int maxSize) {
-    this.stackArray = new Object[maxSize];
-    this.top = -1;
-  }
-
-  public Stack() {
-    this.stackArray = new Object[1 << 30];
-    this.top = -1;
-  }
+  private final DynamicMemory<T> stackArray = new DynamicMemory<>();
 
   public T front() {
-    return (T) stackArray[top];
+    return stackArray.get(stackArray.getSize() - 1);
   }
 
   public void pushFront(T element) {
-    stackArray[++top] = element;
+    stackArray.add(element);
   }
 
   public T popFront() {
-    return (T) stackArray[top--];
+    return stackArray.pop();
   }
 
   public boolean isEmpty() {
-    return top < 0;
+    return stackArray.getSize() == 0;
   }
 
   public int getSize() {
-    return top + 1;
+    return stackArray.getSize();
   }
 }

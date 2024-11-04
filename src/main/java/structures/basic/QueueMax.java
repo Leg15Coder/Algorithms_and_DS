@@ -1,19 +1,11 @@
 package structures.basic;
 
-import structures.basic.Stack;
-
 import static utils.Compare.max;
 
 public class QueueMax {
   static class QueueWithMax<T extends Comparable<T>> extends Queue<T> {
     private final Stack<T> leftMax;
     private final Stack<T> rightMax;
-
-    public QueueWithMax(int maxSize) {
-      super(maxSize);
-      this.leftMax = new Stack<T>(maxSize);
-      this.rightMax = new Stack<T>(maxSize);
-    }
 
     public QueueWithMax() {
       super();
@@ -22,14 +14,14 @@ public class QueueMax {
     }
 
     private void moveStacksElements() {
-      if (super.right.isEmpty()) {
-        while (!super.left.isEmpty()) {
-          if (super.right.isEmpty()) {
-            rightMax.pushFront(super.left.front());
+      if (super.popStack.isEmpty()) {
+        while (!super.pushStack.isEmpty()) {
+          if (super.popStack.isEmpty()) {
+            rightMax.pushFront(super.pushStack.front());
           } else {
-            rightMax.pushFront(max(rightMax.front(), super.left.front()));
+            rightMax.pushFront(max(rightMax.front(), super.pushStack.front()));
           }
-          super.right.pushFront(super.left.popFront());
+          super.popStack.pushFront(super.pushStack.popFront());
           leftMax.popFront();
         }
       }
@@ -38,7 +30,7 @@ public class QueueMax {
     @Override
     public void pushFront(T element) {
       moveStacksElements();
-      super.left.pushFront(element);
+      super.pushStack.pushFront(element);
       if (leftMax.isEmpty()) {
         leftMax.pushFront(element);
       } else {
@@ -50,13 +42,13 @@ public class QueueMax {
     public T popBack() {
       moveStacksElements();
       rightMax.popFront();
-      return super.right.popFront();
+      return super.popStack.popFront();
     }
 
     @Override
     public T back() {
       moveStacksElements();
-      return super.right.front();
+      return super.popStack.front();
     }
 
     public T getMax() {
