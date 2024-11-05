@@ -1,12 +1,12 @@
 package structures.basic;
 
-public class Queue<T> {
+public class Queue<T> implements QueueInterface<T> {
   protected final Stack<T> pushStack;
   protected final Stack<T> popStack;
 
   public Queue() {
-    this.pushStack = new Stack<T>();
-    this.popStack = new Stack<T>();
+    this.pushStack = new Stack<>();
+    this.popStack = new Stack<>();
   }
 
   private void moveStacksElements() {
