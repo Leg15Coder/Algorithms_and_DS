@@ -15,9 +15,9 @@ public class ArrayList<T> extends DynamicMemory<T> {
   }
 
   public void clear() {
-    this.array = new Object[8];
-    this.previous = new Object[4];
-    this.next = new Object[16];
+    this.array = new Object[2];
+    this.previous = new Object[1];
+    this.next = new Object[4];
     this.size = 0;
     this.prev = 0;
     this.nxt = 0;

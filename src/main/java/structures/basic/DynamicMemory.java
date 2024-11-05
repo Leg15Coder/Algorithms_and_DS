@@ -61,6 +61,9 @@ public class DynamicMemory<T> {
     //   deallocate();
     // }
     T result = (T) array[--size];
+    if (nxt > 0) {
+      nxt -= 2;
+    }
     // if (prev + size + 1 == array.length) {
     //   System.out.print("*");
     //   this.previous[prev++] = array[array.length - size - 1];
