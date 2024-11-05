@@ -7,13 +7,6 @@ public class MinMaxHeap<T extends Comparable<T>> {
   private final Heap<T> DeletedMax;
   private int size = 0;
 
-  public MinMaxHeap(int maxSize) {
-    this.MaxHeap = new Heap<T>(maxSize, false);
-    this.MinHeap = new Heap<T>(maxSize, true);
-    this.DeletedMin = new Heap<T>(maxSize, true);
-    this.DeletedMax = new Heap<T>(maxSize, false);
-  }
-
   public MinMaxHeap() {
     this.MaxHeap = new Heap<T>(false);
     this.MinHeap = new Heap<T>(true);
