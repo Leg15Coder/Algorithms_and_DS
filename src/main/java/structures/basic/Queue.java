@@ -22,11 +22,17 @@ public class Queue<T> {
   }
 
   public T back() {
+    if (isEmpty()) {
+      return null;
+    }
     moveStacksElements();
     return popStack.front();
   }
 
   public T popBack() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Очередь пуста, невозможно удалить элемент");
+    }
     moveStacksElements();
     return popStack.popFront();
   }

@@ -4,6 +4,9 @@ class Stack<T> {
   private final DynamicMemory<T> stackArray = new DynamicMemory<>();
 
   public T front() {
+    if (isEmpty()) {
+      return null;
+    }
     return stackArray.get(stackArray.getSize() - 1);
   }
 
@@ -12,6 +15,9 @@ class Stack<T> {
   }
 
   public T popFront() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Стек пуст, невозможно удалить элемент");
+    }
     return stackArray.pop();
   }
 

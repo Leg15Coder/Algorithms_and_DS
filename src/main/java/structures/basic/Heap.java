@@ -61,7 +61,7 @@ public class Heap<T extends Comparable<T>> {
   }
 
   public void insert(T element) {
-    HeapArray.set(element, size);
+    HeapArray.add(element);
     siftUp(size++);
   }
 
