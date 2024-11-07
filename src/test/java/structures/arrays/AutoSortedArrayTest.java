@@ -1,4 +1,4 @@
-package structures.trees.search;
+package structures.arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,15 +8,15 @@ import java.util.Random;
 import static java.util.Arrays.sort;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TreapTest {
+class AutoSortedArrayTest {
 
   Random rnd = new Random();
 
   @Test
   void add() {
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     tree.add(rnd.nextLong());
-    assertNotNull(tree.root);
+    assertEquals(1, tree.getSize());
   }
 
   @Test
@@ -27,7 +27,7 @@ class TreapTest {
     int m = rnd.nextInt(sizeNotUniq);
     Long[] toCheckUniq = new Long[n];
     Long[] toCheckNotUniq = new Long[m];
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
       Long tmp = rnd.nextLong();
       boolean flag = true;
@@ -68,7 +68,7 @@ class TreapTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n+1];
     toCheck[0] = rnd.nextLong();
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
       while (tmp == toCheck[0]) {
@@ -89,7 +89,7 @@ class TreapTest {
   void next() {
     int size = rnd.nextInt(1000);
     long[] toCheck = new long[size];
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     assertNull(tree.next(rnd.nextLong()));
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong() << 1;
@@ -108,7 +108,7 @@ class TreapTest {
   void previous() {
     int size = rnd.nextInt(1000);
     long[] toCheck = new long[size];
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     assertNull(tree.previous(rnd.nextLong()));
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong() << 1;
@@ -131,7 +131,7 @@ class TreapTest {
     int m = rnd.nextInt(sizeNotUniq);
     Long[] toCheckUniq = new Long[n];
     Long[] toCheckNotUniq = new Long[m];
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
       Long tmp = rnd.nextLong();
       boolean flag = true;
@@ -170,7 +170,7 @@ class TreapTest {
   void getMin() {
     int size = rnd.nextInt(1000);
     Long mn = null;
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     assertNull(tree.getMin());
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
@@ -186,7 +186,7 @@ class TreapTest {
   void getMax() {
     int size = rnd.nextInt(1000);
     Long mx = null;
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     assertNull(tree.getMax());
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
@@ -200,16 +200,16 @@ class TreapTest {
 
   @Test
   void isEmpty() {
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     tree.add(rnd.nextLong());
     tree.clear();
-    assertNull(tree.root);
+    assertEquals(0, tree.getSize());
   }
 
   @Test
   void clear() {
     int size = rnd.nextInt(1000);
-    Treap<Long> tree = new Treap<>();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     for (int i = 0; i < size; ++i) {
       tree.add(rnd.nextLong());
     }
@@ -219,22 +219,92 @@ class TreapTest {
 
   @Test
   void getSize() {
-    Treap<Long> tree = new Treap<>();
+    int size = rnd.nextInt(1000);
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
     assertEquals(tree.getSize(), 0);
-
-    // todo later
+    for (int i = 0; i < size; ++i) {
+      tree.add(rnd.nextLong());
+    }
+    assertEquals(tree.getSize(), size);
   }
 
   @Test
-  void toStringTest() {
-    Treap<Long> tree = new Treap<>();
-    assertEquals(tree.toString(), "null");
-
-    for (int i = 0; i < 100; ++i) {
-      tree.add(rnd.nextLong());
+  void testRemove() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong();
+      tree.add(tmp);
+      toCheck[i] = tmp;
     }
-    assertNotEquals(tree.toString(), "null");
+    sort(toCheck);
+    int right = rnd.nextInt(size);
+    int left = rnd.nextInt(right);
+    for (int i = 0; i < right - left + 1; ++i) {
+      tree.remove(left);
+    }
+    for (int i = 0; i < size - right + left - 1; ++i) {
+      if (i < left) {
+        assertEquals(i, tree.getIndex(toCheck[i]));
+      } else {
+        assertEquals(i, tree.getIndex(toCheck[i + right - left + 1]));
+      }
+    }
+  }
 
-    // todo other later
+  @Test
+  void insert() {
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    assertThrows(UnsupportedOperationException.class, () -> tree.insert(rnd.nextLong(), rnd.nextInt()));
+  }
+
+  @Test
+  void testInsert() {
+    add();
+  }
+
+  @Test
+  void sum() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong();
+      tree.add(tmp);
+      toCheck[i] = tmp;
+    }
+    sort(toCheck);
+    int right = rnd.nextInt(size);
+    int left = rnd.nextInt(right);
+    long result = 0;
+    for (int i = left; i <= right; ++i) {
+      result += toCheck[i];
+    }
+    assertEquals(result, tree.sum(left, right));
+  }
+
+  @Test
+  void getIndex() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong();
+      tree.add(tmp);
+     toCheck[i] = tmp;
+    }
+    sort(toCheck);
+    for (int i = 0; i < size; ++i) {
+      assertEquals(i, tree.getIndex(toCheck[i]));
+    }
+    for (int i = size + 1; i <= 2 * size; ++i) {
+      int finalI = i;
+      assertThrows(IllegalArgumentException.class,() -> tree.getIndex(toCheck[-finalI]));
+    }
+    for (int i = size; i <= 2 * size; ++i) {
+      int finalI = i;
+      assertThrows(IllegalArgumentException.class,() -> tree.getIndex(toCheck[finalI]));
+    }
   }
 }

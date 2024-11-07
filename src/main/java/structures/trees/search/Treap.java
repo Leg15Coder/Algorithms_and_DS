@@ -78,14 +78,10 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
   }
 
-  Random random = new Random();
-  Node root;
+  protected Random random = new Random();
+  protected Object root = null;
 
-  public Treap() {
-    this.root = null;
-  }
-
-  private Node merge(Node left, Node right) {
+  protected Node merge(Node left, Node right) {
     if (left == null) {
       return right;
     }
@@ -105,7 +101,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     return left;
   }
 
-  private Pair<Node, Node> splitLessOrEq(Node cur, T value) {
+  protected Pair<Node, Node> splitLessOrEq(Node cur, T value) {
     if (cur == null) {
       return new Pair<>(null, null);
     }
@@ -120,7 +116,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
   }
 
-  private Pair<Node, Node> splitMoreOrEq(Node cur, T value) {
+  protected Pair<Node, Node> splitMoreOrEq(Node cur, T value) {
     if (cur == null) {
       return new Pair<>(null, null);
     }
@@ -146,14 +142,14 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       this.root = new Node(value, priority);
       return;
     }
-    Pair<Node, Node> tmp = splitMoreOrEq(this.root, value);
+    Pair<Node, Node> tmp = splitMoreOrEq((Node) this.root, value);
     this.root = merge(tmp.first, merge(tmp.second, new Node(value, priority)));
   }
 
   @Override
   public boolean remove(T value) {
     if (get(value)) {
-      Pair<Node, Node> less = splitMoreOrEq(this.root, value);
+      Pair<Node, Node> less = splitMoreOrEq((Node) this.root, value);
       Pair<Node, Node> more = splitLessOrEq(less.second, value);
       this.root = merge(less.first, merge(merge(more.first.getLeft(), more.first.getRight()), more.second));
       return true;
@@ -163,7 +159,13 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
 
   @Override
   public boolean delete(T value) {
-    return false; // todo later
+    if (get(value)) {
+      Pair<Node, Node> less = splitMoreOrEq((Node) this.root, value);
+      Pair<Node, Node> more = splitLessOrEq(less.second, value);
+      this.root = merge(less.first, more.second);
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -171,7 +173,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return false;
     }
-    Node cur = this.root;
+    Node cur = (Node) this.root;
     while (cur != null) {
       if (cur.getValue().equals(value)) {
         return true;
@@ -189,7 +191,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    Node cur = this.root;
+    Node cur = (Node) this.root;
     while (cur.getLeft() != null) {
       cur = cur.getLeft();
     }
@@ -201,7 +203,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    Node cur = this.root;
+    Node cur = (Node) this.root;
     while (cur.getRight() != null) {
       cur = cur.getRight();
     }
@@ -213,7 +215,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    Node cur = this.root;
+    Node cur = (Node) this.root;
     T result = null;
     while (cur != null) {
       if (cur.getValue().equals(value)) {
@@ -233,7 +235,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    Node cur = this.root;
+    Node cur = (Node) this.root;
     T result = null;
     while (cur != null) {
       if (cur.getValue().equals(value)) {
@@ -247,15 +249,6 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
     return result;
   }
-
-  //  public void insert(int index, T value, int priority) {
-  //    if (index > getSize()) {
-  //      throw new IllegalArgumentException("Невозможно вставить индекс " + index + " потому что в Декартовом Дереве только " + getSize() + " элементов");
-  //    }
-  //    Pair<Node, Node> tmp = split(this.root, value); // todo later
-  //    Node newSecond = merge(tmp.second, new Node(value, priority));
-  //    this.root = merge(tmp.first, newSecond);
-  //  }
 
   @Override
   public boolean isEmpty() {
@@ -277,6 +270,6 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return "null";
     }
-    return this.root.toString(null);
+    return ((Node) this.root).toString(null);
   }
 }
