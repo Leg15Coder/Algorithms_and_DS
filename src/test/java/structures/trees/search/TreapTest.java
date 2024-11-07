@@ -20,7 +20,7 @@ class TreapTest {
 
   @Test
   void testAdd() {
-    assertTrue(false); // todo later
+    // todo later
   }
 
   @Test

@@ -1,5 +1,8 @@
 package structures.trees.search;
 
+import static utils.Compare.max;
+import static utils.Compare.min;
+
 public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTreeInterface<T> {
   protected class Node {
     Node left = null;
@@ -46,9 +49,11 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
   }
 
   Node root = null;
+  int size = 0;
 
   @Override
   public void add(T value) {
+    size++;
     if (isEmpty()) {
       this.root = new Node(value);
       return;
@@ -78,9 +83,15 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
   public boolean remove(T value) {
     if (get(this.root, value)) {
       this.root = remove(this.root, value);
+      size--;
       return true;
     }
     return false;
+  }
+
+  @Override
+  public boolean delete(T value) {
+    return false; // todo later
   }
 
   private Node remove(Node cur, T value) {
@@ -163,6 +174,46 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
     return getMax(this.root).value;
   }
 
+  @Override
+  public T next(T value) {
+    if (isEmpty()) {
+      return null;
+    }
+    Node cur = this.root;
+    T result = null;
+    while (cur != null) {
+      if (cur.getValue().equals(value)) {
+        return value;
+      } else if (cur.getValue().compareTo(value) < 0) {
+        cur = cur.getRight();
+      } else {
+        result = min(result, cur.getValue());
+        cur = cur.getLeft();
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public T previous(T value) {
+    if (isEmpty()) {
+      return null;
+    }
+    Node cur = this.root;
+    T result = null;
+    while (cur != null) {
+      if (cur.getValue().equals(value)) {
+        return value;
+      } else if (cur.getValue().compareTo(value) > 0) {
+        cur = cur.getLeft();
+      } else {
+        result = max(result, cur.getValue());
+        cur = cur.getRight();
+      }
+    }
+    return result;
+  }
+
   private Node getMax(Node cur) {
     if (cur.getRight() == null) {
       return cur;
@@ -189,5 +240,10 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
   @Override
   public void clear() {
     this.root = null;
+  }
+
+  @Override
+  public int getSize() {
+    return size;
   }
 }

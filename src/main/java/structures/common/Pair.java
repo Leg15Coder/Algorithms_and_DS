@@ -1,10 +1,10 @@
 package structures.common;
 
-public class Pair<T> {
+public class Pair<T, E> {
   public T first;
-  public T second;
+  public E second;
 
-  public Pair(T first, T second) {
+  public Pair(T first, E second) {
     this.first = first;
     this.second = second;
   }

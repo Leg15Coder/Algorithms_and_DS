@@ -3,6 +3,9 @@ package structures.trees.search;
 import structures.common.Pair;
 import java.util.Random;
 
+import static utils.Compare.max;
+import static utils.Compare.min;
+
 public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface<T> {
   protected class Node implements Comparable<Node> {
     T key;
@@ -47,13 +50,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       if (this.getPriority() < o.getPriority()) {
         return -1;
       }
-      if (this.getValue().compareTo(o.getValue()) > 0) {
-        return 1;
-      }
-      if (this.getValue().compareTo(o.getValue()) < 0) {
-        return -1;
-      }
-      return 0;
+      return Integer.compare(this.getValue().compareTo(o.getValue()), 0);
     }
 
     public String toString(Node parent) {
@@ -115,16 +112,16 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     return left;
   }
 
-  private Pair<Node> split(Node cur, T value) {
+  private Pair<Node, Node> split(Node cur, T value) {
     if (cur == null) {
       return new Pair<>(null, null);
     }
     if (cur.getValue().compareTo(value) < 0) {
-      Pair<Node> tmp = split(cur.getRight(), value);
+      Pair<Node, Node> tmp = split(cur.getRight(), value);
       cur.setRight(tmp.first);
       return new Pair<>(cur, tmp.second);
     } else {
-      Pair<Node> tmp = split(cur.getLeft(), value);
+      Pair<Node, Node> tmp = split(cur.getLeft(), value);
       cur.setLeft(tmp.second);
       return new Pair<>(tmp.first, cur);
     }
@@ -141,18 +138,23 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       this.root = new Node(value, priority);
       return;
     }
-    Pair<Node> tmp = split(this.root, value);
+    Pair<Node, Node> tmp = split(this.root, value);
     this.root = merge(tmp.first, merge(tmp.second, new Node(value, priority)));
   }
 
   @Override
   public boolean remove(T value) {
     if (get(value)) {
-      Pair<Node> tmp = split(this.root, value);
+      Pair<Node, Node> tmp = split(this.root, value);
       this.root = merge(tmp.first, merge(tmp.second.getLeft(), tmp.second.getRight()));
       return true;
     }
     return false;
+  }
+
+  @Override
+  public boolean delete(T value) {
+    return false; // todo later
   }
 
   @Override
@@ -198,6 +200,55 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   }
 
   @Override
+  public T next(T value) {
+    if (isEmpty()) {
+      return null;
+    }
+    Node cur = this.root;
+    T result = null;
+    while (cur != null) {
+      if (cur.getValue().equals(value)) {
+        return value;
+      } else if (cur.getValue().compareTo(value) < 0) {
+        cur = cur.getRight();
+      } else {
+        result = min(result, cur.getValue());
+        cur = cur.getLeft();
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public T previous(T value) {
+    if (isEmpty()) {
+      return null;
+    }
+    Node cur = this.root;
+    T result = null;
+    while (cur != null) {
+      if (cur.getValue().equals(value)) {
+        return value;
+      } else if (cur.getValue().compareTo(value) > 0) {
+        cur = cur.getLeft();
+      } else {
+        result = max(result, cur.getValue());
+        cur = cur.getRight();
+      }
+    }
+    return result;
+  }
+
+  //  public void insert(int index, T value, int priority) {
+  //    if (index > getSize()) {
+  //      throw new IllegalArgumentException("Невозможно вставить индекс " + index + " потому что в Декартовом Дереве только " + getSize() + " элементов");
+  //    }
+  //    Pair<Node, Node> tmp = split(this.root, value); // todo later
+  //    Node newSecond = merge(tmp.second, new Node(value, priority));
+  //    this.root = merge(tmp.first, newSecond);
+  //  }
+
+  @Override
   public boolean isEmpty() {
     return root == null;
   }
@@ -205,6 +256,11 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   @Override
   public void clear() {
     this.root = null;
+  }
+
+  @Override
+  public int getSize() {
+    return 0; // todo later
   }
 
   @Override
