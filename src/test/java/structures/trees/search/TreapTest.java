@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 import java.util.Random;
 
+import static java.util.Arrays.sort;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TreapTest {
@@ -13,25 +14,20 @@ class TreapTest {
 
   @Test
   void add() {
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     tree.add(rnd.nextLong());
     assertNotNull(tree.root);
   }
 
   @Test
-  void testAdd() {
-    // todo later
-  }
-
-  @Test
   void remove() {
-    int sizeUniq = rnd.nextInt(1000);
-    int sizeNotUniq = rnd.nextInt(1000);
+    int sizeUniq = rnd.nextInt(10000);
+    int sizeNotUniq = rnd.nextInt(10000);
     int n = rnd.nextInt(sizeUniq);
     int m = rnd.nextInt(sizeNotUniq);
     Long[] toCheckUniq = new Long[n];
     Long[] toCheckNotUniq = new Long[m];
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
       Long tmp = rnd.nextLong();
       boolean flag = true;
@@ -72,7 +68,7 @@ class TreapTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n+1];
     toCheck[0] = rnd.nextLong();
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
       while (tmp == toCheck[0]) {
@@ -90,10 +86,54 @@ class TreapTest {
   }
 
   @Test
+  void next() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    Treap<Long> tree = new Treap<>();
+    assertNull(tree.next(rnd.nextLong()));
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong() << 1;
+      tree.add(tmp);
+      toCheck[i] = tmp;
+    }
+    sort(toCheck);
+    for (int i = 0; i < size; ++i) {
+      assertEquals(tree.next(toCheck[i]), toCheck[i]);
+      assertEquals(tree.next(toCheck[i] - 1), toCheck[i]);
+    }
+    assertNull(tree.next(toCheck[size - 1] + 1));
+  }
+
+  @Test
+  void previous() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    Treap<Long> tree = new Treap<>();
+    assertNull(tree.previous(rnd.nextLong()));
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong() << 1;
+      tree.add(tmp);
+      toCheck[i] = tmp;
+    }
+    sort(toCheck);
+    for (int i = 0; i < size; ++i) {
+      assertEquals(tree.previous(toCheck[i]), toCheck[i]);
+      assertEquals(tree.previous(toCheck[i] + 1), toCheck[i]);
+    }
+    assertNull(tree.previous(toCheck[0] - 1));
+  }
+
+  @Test
+  void delete() {
+    // todo later
+  }
+
+  @Test
   void getMin() {
     int size = rnd.nextInt(1000);
     Long mn = null;
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
+    assertNull(tree.getMin());
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
       if (mn == null || tmp.compareTo(mn) < 0) {
@@ -108,7 +148,8 @@ class TreapTest {
   void getMax() {
     int size = rnd.nextInt(1000);
     Long mx = null;
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
+    assertNull(tree.getMax());
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
       if (mx == null || tmp.compareTo(mx) > 0) {
@@ -121,7 +162,7 @@ class TreapTest {
 
   @Test
   void isEmpty() {
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     tree.add(rnd.nextLong());
     tree.clear();
     assertNull(tree.root);
@@ -130,11 +171,32 @@ class TreapTest {
   @Test
   void clear() {
     int size = rnd.nextInt(1000);
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     for (int i = 0; i < size; ++i) {
       tree.add(rnd.nextLong());
     }
     tree.clear();
     assertTrue(tree.isEmpty());
+  }
+
+  @Test
+  void getSize() {
+    Treap<Long> tree = new Treap<>();
+    assertEquals(tree.getSize(), 0);
+
+    // todo later
+  }
+
+  @Test
+  void toStringTest() {
+    Treap<Long> tree = new Treap<>();
+    assertEquals(tree.toString(), "null");
+
+    for (int i = 0; i < 100; ++i) {
+      tree.add(rnd.nextLong());
+    }
+    assertNotEquals(tree.toString(), "null");
+
+    // todo other later
   }
 }

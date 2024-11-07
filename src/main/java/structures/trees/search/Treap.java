@@ -80,16 +80,9 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
 
   Random random = new Random();
   Node root;
-  boolean auto;
 
   public Treap() {
     this.root = null;
-    this.auto = true;
-  }
-
-  public Treap(boolean isAutoPriorities) {
-    this.root = null;
-    this.auto = isAutoPriorities;
   }
 
   private Node merge(Node left, Node right) {
@@ -112,16 +105,31 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     return left;
   }
 
-  private Pair<Node, Node> split(Node cur, T value) {
+  private Pair<Node, Node> splitLessOrEq(Node cur, T value) {
+    if (cur == null) {
+      return new Pair<>(null, null);
+    }
+    if (cur.getValue().compareTo(value) > 0) {
+      Pair<Node, Node> tmp = splitLessOrEq(cur.getLeft(), value);
+      cur.setLeft(tmp.second);
+      return new Pair<>(tmp.first, cur);
+    } else {
+      Pair<Node, Node> tmp = splitLessOrEq(cur.getRight(), value);
+      cur.setRight(tmp.first);
+      return new Pair<>(cur, tmp.second);
+    }
+  }
+
+  private Pair<Node, Node> splitMoreOrEq(Node cur, T value) {
     if (cur == null) {
       return new Pair<>(null, null);
     }
     if (cur.getValue().compareTo(value) < 0) {
-      Pair<Node, Node> tmp = split(cur.getRight(), value);
+      Pair<Node, Node> tmp = splitMoreOrEq(cur.getRight(), value);
       cur.setRight(tmp.first);
       return new Pair<>(cur, tmp.second);
     } else {
-      Pair<Node, Node> tmp = split(cur.getLeft(), value);
+      Pair<Node, Node> tmp = splitMoreOrEq(cur.getLeft(), value);
       cur.setLeft(tmp.second);
       return new Pair<>(tmp.first, cur);
     }
@@ -138,15 +146,16 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       this.root = new Node(value, priority);
       return;
     }
-    Pair<Node, Node> tmp = split(this.root, value);
+    Pair<Node, Node> tmp = splitMoreOrEq(this.root, value);
     this.root = merge(tmp.first, merge(tmp.second, new Node(value, priority)));
   }
 
   @Override
   public boolean remove(T value) {
     if (get(value)) {
-      Pair<Node, Node> tmp = split(this.root, value);
-      this.root = merge(tmp.first, merge(tmp.second.getLeft(), tmp.second.getRight()));
+      Pair<Node, Node> less = splitMoreOrEq(this.root, value);
+      Pair<Node, Node> more = splitLessOrEq(less.second, value);
+      this.root = merge(less.first, merge(merge(more.first.getLeft(), more.first.getRight()), more.second));
       return true;
     }
     return false;
