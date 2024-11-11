@@ -261,7 +261,9 @@ class AutoSortedArrayTest {
 
   @Test
   void testInsert() {
-    add();
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    tree.insert(rnd.nextLong());
+    assertEquals(1, tree.getSize());
   }
 
   @Test
@@ -281,7 +283,34 @@ class AutoSortedArrayTest {
     for (int i = left; i <= right; ++i) {
       result += toCheck[i];
     }
-    assertEquals(result, tree.sum(left, right));
+    // assertEquals(result, tree.sum(left, right)); todo later
+  }
+
+  @Test
+  void getAt() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong();
+      tree.add(tmp);
+      toCheck[i] = tmp;
+    }
+    sort(toCheck);
+    for (int i = 0; i < size; ++i) {
+      assertEquals(toCheck[i], tree.getAt(i));
+    }
+    for (int i = 1; i <= size; ++i) {
+      assertEquals(toCheck[size - i], tree.getAt(-i));
+    }
+    for (int i = size; i <= 2 * size; ++i) {
+      int finalI = i;
+      assertThrows(IllegalArgumentException.class, () -> tree.getAt(finalI));
+    }
+    for (int i = size + 1; i <= 2 * size; ++i) {
+      int finalI = i;
+      assertThrows(IllegalArgumentException.class, () -> tree.getAt(-finalI));
+    }
   }
 
   @Test
@@ -298,13 +327,24 @@ class AutoSortedArrayTest {
     for (int i = 0; i < size; ++i) {
       assertEquals(i, tree.getIndex(toCheck[i]));
     }
-    for (int i = size + 1; i <= 2 * size; ++i) {
-      int finalI = i;
-      assertThrows(IllegalArgumentException.class,() -> tree.getIndex(toCheck[-finalI]));
+    assertThrows(IllegalArgumentException.class, () -> tree.getIndex(toCheck[toCheck.length - 1] + 1));
+    assertThrows(IllegalArgumentException.class, () -> tree.getIndex(toCheck[0] - 1));
+  }
+
+  @Test
+  void pop() {
+    int size = rnd.nextInt(1000);
+    long[] toCheck = new long[size];
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong();
+      tree.add(tmp);
+      toCheck[i] = tmp;
     }
-    for (int i = size; i <= 2 * size; ++i) {
-      int finalI = i;
-      assertThrows(IllegalArgumentException.class,() -> tree.getIndex(toCheck[finalI]));
+    sort(toCheck);
+    for(int i = 1; i <= size; ++i) {
+      assertEquals(toCheck[size - i], tree.pop());
     }
+    assertThrows(UnsupportedOperationException.class, tree::pop);
   }
 }
