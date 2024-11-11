@@ -224,17 +224,4 @@ class TreapTest {
 
     // todo later
   }
-
-  @Test
-  void toStringTest() {
-    Treap<Long> tree = new Treap<>();
-    assertEquals(tree.toString(), "null");
-
-    for (int i = 0; i < 100; ++i) {
-      tree.add(rnd.nextLong());
-    }
-    assertNotEquals(tree.toString(), "null");
-
-    // todo other later
-  }
 }

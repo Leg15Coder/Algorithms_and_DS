@@ -2,6 +2,8 @@ package structures.arrays;
 
 import structures.common.Pair;
 import structures.trees.search.Treap;
+import structures.trees.search.nodes.ArrayTreapNode;
+import structures.trees.search.nodes.PriorityNodeInterface;
 
 public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implements AutoSortedArrayInterface<T> {
   private class Node implements Comparable<Node> {
@@ -180,7 +182,7 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
     return getIndex(this.root, value);
   }
 
-  private int getIndex(Node cur, T value) {
+  private int getIndex(ArrayTreapNode<T> cur, T value) {
     if (cur.getValue().equals(value)) {
       return cur.getIndex();
     }
