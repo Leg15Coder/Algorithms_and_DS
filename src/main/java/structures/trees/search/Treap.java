@@ -10,6 +10,88 @@ import static utils.Compare.max;
 import static utils.Compare.min;
 
 public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface<T> {
+  protected void updateNode(Node node) { }
+
+  protected class Node implements Comparable<Node> {
+    T key;
+    int priority;
+    Node left;
+    Node right;
+    Object expansionPoint;
+
+    public Node(T key, int priority, Object expansionPoint) {
+      this.key = key;
+      this.priority = priority;
+      this.expansionPoint = expansionPoint;
+      updateNode(this);
+    }
+
+    public void setLeft(Node left) {
+      this.left = left;
+      updateNode(this);
+    }
+
+    public void setRight(Node right) {
+      this.right = right;
+      updateNode(this);
+    }
+
+    public Node getLeft() {
+      return this.left;
+    }
+
+    public Node getRight() {
+      return this.right;
+    }
+
+    public T getValue() {
+      return this.key;
+    }
+
+    public int getPriority() {
+      return this.priority;
+    }
+
+    public Object getSubNode() {
+      return this.expansionPoint;
+    }
+
+    @Override
+    public int compareTo(Node o) {
+      if (this.getPriority() > o.getPriority()) {
+        return 1;
+      }
+      if (this.getPriority() < o.getPriority()) {
+        return -1;
+      }
+      return Integer.compare(this.getValue().compareTo(o.getValue()), 0);
+    }
+
+    public String toString(Node parent) {
+      String result = "";
+      String cur = "";
+      if (parent == null) {
+        cur += "0 ";
+      } else {
+        cur += parent.getValue() + " ";
+      }
+      if (this.getLeft() != null) {
+        result += this.getLeft().toString(this);
+        cur += this.getLeft().getValue() + " ";
+      } else {
+        cur += "0 ";
+      }
+      if (this.getRight() != null) {
+        result += this.getRight().toString(this);
+        cur += this.getRight().getValue() + "";
+      } else {
+        cur += "0";
+      }
+      result += "\n" + cur;
+      return result;
+    }
+  }
+
   protected Random random = new Random();
   protected Node root = null;
 
@@ -71,11 +153,11 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
 
   public void add(T value, int priority) {
     if (isEmpty()) {
-      this.root = new TreapNode<>(value, priority);
+      this.root = new Node(value, priority, null);
       return;
     }
     Pair<Node, Node> tmp = splitMoreOrEq(this.root, value);
-    this.root = merge(tmp.first, merge(tmp.second, new Node(value, priority)));
+    this.root = merge(tmp.first, merge(tmp.second, new Node(value, priority, null)));
   }
 
   @Override
@@ -105,8 +187,8 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return false;
     }
-    TreapNode<T> cur = (TreapNode<T>) this.root;
-    while (cur != null && cur.getValue() != null) {
+    Node cur = this.root;
+    while (cur != null) {
       if (cur.getValue().equals(value)) {
         return true;
       } else if (cur.getValue().compareTo(value) > 0) {
