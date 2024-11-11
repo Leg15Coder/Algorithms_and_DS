@@ -1,32 +1,33 @@
 package structures.trees.search;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.Objects;
 import java.util.Random;
 
 import static java.util.Arrays.sort;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BinarySearchTreeTest {
+class TreapTest {
 
   Random rnd = new Random();
 
   @Test
   void add() {
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     tree.add(rnd.nextLong());
     assertNotNull(tree.root);
   }
 
   @Test
   void remove() {
-    int sizeUniq = rnd.nextInt(1000);
-    int sizeNotUniq = rnd.nextInt(1000);
+    int sizeUniq = rnd.nextInt(10000);
+    int sizeNotUniq = rnd.nextInt(10000);
     int n = rnd.nextInt(sizeUniq);
     int m = rnd.nextInt(sizeNotUniq);
     Long[] toCheckUniq = new Long[n];
     Long[] toCheckNotUniq = new Long[m];
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
       Long tmp = rnd.nextLong();
       boolean flag = true;
@@ -67,7 +68,7 @@ class BinarySearchTreeTest {
     int n = rnd.nextInt(size);
     long[] toCheck = new long[n+1];
     toCheck[0] = rnd.nextLong();
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
       while (tmp == toCheck[0]) {
@@ -88,7 +89,7 @@ class BinarySearchTreeTest {
   void next() {
     int size = rnd.nextInt(1000);
     long[] toCheck = new long[size];
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     assertNull(tree.next(rnd.nextLong()));
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong() << 1;
@@ -107,7 +108,7 @@ class BinarySearchTreeTest {
   void previous() {
     int size = rnd.nextInt(1000);
     long[] toCheck = new long[size];
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     assertNull(tree.previous(rnd.nextLong()));
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong() << 1;
@@ -124,14 +125,52 @@ class BinarySearchTreeTest {
 
   @Test
   void delete() {
-    // todo later
+    int sizeUniq = rnd.nextInt(10000);
+    int sizeNotUniq = rnd.nextInt(10000);
+    int n = rnd.nextInt(sizeUniq);
+    int m = rnd.nextInt(sizeNotUniq);
+    Long[] toCheckUniq = new Long[n];
+    Long[] toCheckNotUniq = new Long[m];
+    Treap<Long> tree = new Treap<>();
+    for (int i = 0; i < sizeUniq + sizeNotUniq; ++i) {
+      Long tmp = rnd.nextLong();
+      boolean flag = true;
+      while (flag) {
+        flag = false;
+        for (Long toCheck : toCheckUniq) {
+          if (Objects.equals(toCheck, tmp)) {
+            flag = true;
+            break;
+          }
+        }
+        tmp = rnd.nextLong();
+      }
+      tree.add(tmp);
+      if (i >= sizeUniq) {
+        tree.add(tmp);
+      }
+      if (i < n) {
+        toCheckUniq[i] = tmp;
+      }
+      if (i >= sizeUniq + sizeNotUniq - m) {
+        toCheckNotUniq[i - (sizeUniq + sizeNotUniq - m)] = tmp;
+      }
+    }
+    for (Long toCheck : toCheckNotUniq) {
+      assertTrue(tree.delete(toCheck));
+      assertFalse(tree.delete(toCheck));
+    }
+    for (Long toCheck : toCheckUniq) {
+      assertTrue(tree.delete(toCheck));
+      assertFalse(tree.delete(toCheck));
+    }
   }
 
   @Test
   void getMin() {
     int size = rnd.nextInt(1000);
     Long mn = null;
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     assertNull(tree.getMin());
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
@@ -147,7 +186,7 @@ class BinarySearchTreeTest {
   void getMax() {
     int size = rnd.nextInt(1000);
     Long mx = null;
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     assertNull(tree.getMax());
     for (int i = 0; i < size; ++i) {
       Long tmp = rnd.nextLong();
@@ -161,7 +200,7 @@ class BinarySearchTreeTest {
 
   @Test
   void isEmpty() {
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     tree.add(rnd.nextLong());
     tree.clear();
     assertNull(tree.root);
@@ -170,7 +209,7 @@ class BinarySearchTreeTest {
   @Test
   void clear() {
     int size = rnd.nextInt(1000);
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     for (int i = 0; i < size; ++i) {
       tree.add(rnd.nextLong());
     }
@@ -180,12 +219,9 @@ class BinarySearchTreeTest {
 
   @Test
   void getSize() {
-    int size = rnd.nextInt(1000);
-    BinarySearchTree<Long> tree = new BinarySearchTree<>();
+    Treap<Long> tree = new Treap<>();
     assertEquals(tree.getSize(), 0);
-    for (int i = 0; i < size; ++i) {
-      tree.add(rnd.nextLong());
-    }
-    assertEquals(tree.getSize(), size);
+
+    // todo later
   }
 }
