@@ -11,7 +11,7 @@ import static utils.Compare.min;
 
 public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface<T> {
   protected Random random = new Random();
-  protected PriorityNodeInterface<T> root = null;
+  protected Node root = null;
 
   protected PriorityNodeInterface<T> merge(PriorityNodeInterface<T> left, PriorityNodeInterface<T> right) {
     if (left == null || left.getValue() == null) {
@@ -74,16 +74,16 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       this.root = new TreapNode<>(value, priority);
       return;
     }
-    Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> tmp = splitMoreOrEq(this.root, value);
-    this.root = merge(tmp.first, merge(tmp.second, new TreapNode<>(value, priority)));
+    Pair<Node, Node> tmp = splitMoreOrEq(this.root, value);
+    this.root = merge(tmp.first, merge(tmp.second, new Node(value, priority)));
   }
 
   @Override
   public boolean remove(T value) {
     if (get(value)) {
-      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> less = splitMoreOrEq(this.root, value);
-      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> more = splitLessOrEq(less.second, value);
-      this.root = merge(less.first, merge(merge((PriorityNodeInterface<T>) more.first.getLeft(), (PriorityNodeInterface<T>) more.first.getRight()), more.second));
+      Pair<Node, Node> less = splitMoreOrEq(this.root, value);
+      Pair<Node, Node> more = splitLessOrEq(less.second, value);
+      this.root = merge(less.first, merge(merge(more.first.getLeft(), more.first.getRight()), more.second));
       return true;
     }
     return false;
@@ -92,8 +92,8 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   @Override
   public boolean delete(T value) {
     if (get(value)) {
-      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> less = splitMoreOrEq(this.root, value);
-      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> more = splitLessOrEq(less.second, value);
+      Pair<Node, Node> less = splitMoreOrEq(this.root, value);
+      Pair<Node, Node> more = splitLessOrEq(less.second, value);
       this.root = merge(less.first, more.second);
       return true;
     }
@@ -123,7 +123,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    TreapNode<T> cur = (TreapNode<T>) this.root;
+    Node cur = this.root;
     while (cur.getLeft() != null) {
       cur = (TreapNode<T>) cur.getLeft();
     }
@@ -135,7 +135,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    TreapNode<T> cur = (TreapNode<T>) this.root;
+    Node cur = this.root;
     while (cur.getRight() != null) {
       cur = (TreapNode<T>) cur.getRight();
     }
@@ -147,7 +147,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    TreapNode<T> cur = (TreapNode<T>) this.root;
+    Node cur = this.root;
     T result = null;
     while (cur != null && cur.getValue() != null) {
       if (cur.getValue().equals(value)) {
@@ -167,7 +167,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     if (isEmpty()) {
       return null;
     }
-    TreapNode<T> cur = (TreapNode<T>) this.root;
+    Node cur = this.root;
     T result = null;
     while (cur != null && cur.getValue() != null) {
       if (cur.getValue().equals(value)) {
@@ -195,5 +195,13 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   @Override
   public int getSize() {
     return 0; // todo later
+  }
+
+  @Override
+  public String toString() {
+    if (isEmpty()) {
+      return "null";
+    }
+    return this.root.toString(null);
   }
 }

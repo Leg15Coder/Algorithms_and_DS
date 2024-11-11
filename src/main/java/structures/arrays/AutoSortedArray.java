@@ -6,6 +6,101 @@ import structures.trees.search.nodes.ArrayTreapNode;
 import structures.trees.search.nodes.PriorityNodeInterface;
 
 public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implements AutoSortedArrayInterface<T> {
+  private class Node implements Comparable<Node> {
+    Treap<T>.Node core;
+    T sum; // todo later
+    int index;
+    int subtreesSize;
+    Node left;
+    Node right;
+
+    public Node(T key, int priority) {
+      this.core = new Treap<T>.Node(key, priority);
+      update();
+    }
+
+    public Node(Treap<T>.Node core, Node left, Node right) {
+      this.core = core;
+      this.left = left;
+      this.right = right;
+      update();
+    }
+
+    private void update() {
+      if (getLeft() == null && getRight() == null) {
+        this.index = 0;
+        this.subtreesSize = 1;
+        this.sum = getValue();
+      } else if (getLeft() == null) {
+        this.index = 0;
+        this.subtreesSize = 1 + (getRight()).getSize();
+        this.sum = getValue();
+      } else if (getRight() == null) {
+        this.index = (getLeft()).getIndex();
+        this.subtreesSize = 1 + getLeft().getSize();
+        this.sum = getValue();
+      } else {
+        this.index = (getLeft()).getIndex();
+        this.subtreesSize = 1 + getLeft().getSize() + getRight().getSize();
+        this.sum = getValue();
+      }
+    }
+
+    public int getSize() {
+      return this.subtreesSize;
+    }
+
+    public int getIndex() {
+      return this.index;
+    }
+
+    public void setLeft(Node left) {
+      core.setLeft(left.core);
+      this.left = left;
+      update();
+    }
+
+    public void setRight(Node right) {
+      core.setRight(right.core);
+      this.right = left;
+      update();
+    }
+
+    public T getValue() {
+      update();
+      return core.getValue();
+    }
+    public Node getLeft() {
+      return this.left;
+    }
+
+    public Node getRight() {
+      return this.right;
+    }
+
+    public int getPriority() {
+      return core.getPriority();
+    }
+
+    @Override
+    public int compareTo(Node o) {
+      if (this.getPriority() > o.getPriority()) {
+        return 1;
+      }
+      if (this.getPriority() < o.getPriority()) {
+        return -1;
+      }
+      return Integer.compare(this.getValue().compareTo(o.getValue()), 0);
+    }
+
+    public T getSum() {
+      update();
+      return sum;
+    }
+  }
+
+  protected Node root;
+
   private int checkIndex(int index) {
     if (index < -getSize() || index >= getSize()) {
       throw new  IllegalArgumentException("Выход за границы массива");
@@ -21,15 +116,15 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
     if (index < -getSize() || index >= getSize()) {
       throw new IllegalArgumentException("Выход за границы массива");
     }
-    ArrayTreapNode<T> cur = (ArrayTreapNode<T>) this.root;
+    Node cur = this.root;
     while (index > 0) {
       if (cur.getIndex() == index) {
         return cur.getValue();
       } else if (cur.getIndex() < index) {
         index -= cur.getIndex();
-        cur = (ArrayTreapNode<T>) cur.getRight();
+        cur = cur.getRight();
       } else {
-        cur = (ArrayTreapNode<T>) cur.getLeft();
+        cur = cur.getLeft();
       }
     }
     return null;
@@ -73,9 +168,10 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
 
   @Override
   public T sum(T min, T max) {
-    Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> leftPair = super.splitMoreOrEq(this.root, min);
-    Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> rightPair = super.splitLessOrEq(leftPair.second, max);
-    return ((ArrayTreapNode<T>) rightPair.first).getSum();
+    // Pair<Treap<T>.Node, Treap<T>.Node> leftPair = super.splitMoreOrEq((Treap<T>.Node) this.root, min);
+    // Pair<Treap<T>.Node, Treap<T>.Node> rightPaSir = super.splitLessOrEq(leftPair.second, max);
+    // return rightPair.first.getSum();
+    return null;
   }
 
   @Override
@@ -83,7 +179,7 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
     if (!get(value)) {
       throw new IllegalArgumentException("Данного элемента нет в массиве");
     }
-    return getIndex((ArrayTreapNode<T>) this.root, value);
+    return getIndex(this.root, value);
   }
 
   private int getIndex(ArrayTreapNode<T> cur, T value) {
@@ -91,9 +187,9 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
       return cur.getIndex();
     }
     if (cur.getValue().compareTo(value) > 0) {
-      return getIndex((ArrayTreapNode<T>) cur.getLeft(), value);
+      return getIndex(cur.getLeft(), value);
     }
-    return cur.getIndex() + getIndex((ArrayTreapNode<T>) cur.getRight(), value);
+    return cur.getIndex() + getIndex(cur.getRight(), value);
   }
 
   @Override
@@ -101,6 +197,6 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
     if (isEmpty()) {
       return 0;
     }
-    return ((ArrayTreapNode<T>) this.root).getSize();
+    return this.root.getSize();
   }
 }
