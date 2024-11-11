@@ -1,6 +1,9 @@
 package structures.trees.search;
 
 import structures.common.Pair;
+import structures.trees.search.nodes.PriorityNodeInterface;
+import structures.trees.search.nodes.TreapNode;
+
 import java.util.Random;
 
 import static utils.Compare.max;
@@ -92,51 +95,51 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
   protected Random random = new Random();
   protected Node root = null;
 
-  protected Node merge(Node left, Node right) {
-    if (left == null) {
+  protected PriorityNodeInterface<T> merge(PriorityNodeInterface<T> left, PriorityNodeInterface<T> right) {
+    if (left == null || left.getValue() == null) {
       return right;
     }
-    if (right == null) {
+    if (right == null || right.getValue() == null) {
       return left;
     }
     if (left.compareTo(right) > 0) {
-      Node tmp = left;
+      TreapNode<T> tmp = (TreapNode<T>) left;
       left = right;
       right = tmp;
     }
     if (left.getValue().compareTo(right.getValue()) > 0) {
-      left.setLeft(merge(left.getLeft(), right));
+      left.setLeft(merge((PriorityNodeInterface<T>) left.getLeft(), right));
     } else {
-      left.setRight(merge(left.getRight(), right));
+      left.setRight(merge((PriorityNodeInterface<T>) left.getRight(), right));
     }
     return left;
   }
 
-  protected Pair<Node, Node> splitLessOrEq(Node cur, T value) {
-    if (cur == null) {
+  protected Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> splitLessOrEq(PriorityNodeInterface<T> cur, T value) {
+    if (cur == null || cur.getValue() == null) {
       return new Pair<>(null, null);
     }
     if (cur.getValue().compareTo(value) > 0) {
-      Pair<Node, Node> tmp = splitLessOrEq(cur.getLeft(), value);
+      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> tmp = splitLessOrEq((PriorityNodeInterface<T>) cur.getLeft(), value);
       cur.setLeft(tmp.second);
       return new Pair<>(tmp.first, cur);
     } else {
-      Pair<Node, Node> tmp = splitLessOrEq(cur.getRight(), value);
+      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> tmp = splitLessOrEq((PriorityNodeInterface<T>) cur.getRight(), value);
       cur.setRight(tmp.first);
       return new Pair<>(cur, tmp.second);
     }
   }
 
-  protected Pair<Node, Node> splitMoreOrEq(Node cur, T value) {
-    if (cur == null) {
+  protected Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> splitMoreOrEq(PriorityNodeInterface<T> cur, T value) {
+    if (cur == null || cur.getValue() == null) {
       return new Pair<>(null, null);
     }
     if (cur.getValue().compareTo(value) < 0) {
-      Pair<Node, Node> tmp = splitMoreOrEq(cur.getRight(), value);
+      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> tmp = splitMoreOrEq((PriorityNodeInterface<T>) cur.getRight(), value);
       cur.setRight(tmp.first);
       return new Pair<>(cur, tmp.second);
     } else {
-      Pair<Node, Node> tmp = splitMoreOrEq(cur.getLeft(), value);
+      Pair<PriorityNodeInterface<T>, PriorityNodeInterface<T>> tmp = splitMoreOrEq((PriorityNodeInterface<T>) cur.getLeft(), value);
       cur.setLeft(tmp.second);
       return new Pair<>(tmp.first, cur);
     }
@@ -189,9 +192,9 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
       if (cur.getValue().equals(value)) {
         return true;
       } else if (cur.getValue().compareTo(value) > 0) {
-        cur = cur.getLeft();
+        cur = (TreapNode<T>) cur.getLeft();
       } else {
-        cur = cur.getRight();
+        cur = (TreapNode<T>) cur.getRight();
       }
     }
     return false;
@@ -204,7 +207,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
     Node cur = this.root;
     while (cur.getLeft() != null) {
-      cur = cur.getLeft();
+      cur = (TreapNode<T>) cur.getLeft();
     }
     return cur.getValue();
   }
@@ -216,7 +219,7 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
     Node cur = this.root;
     while (cur.getRight() != null) {
-      cur = cur.getRight();
+      cur = (TreapNode<T>) cur.getRight();
     }
     return cur.getValue();
   }
@@ -228,14 +231,14 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
     Node cur = this.root;
     T result = null;
-    while (cur != null) {
+    while (cur != null && cur.getValue() != null) {
       if (cur.getValue().equals(value)) {
         return value;
       } else if (cur.getValue().compareTo(value) < 0) {
-        cur = cur.getRight();
+        cur = (TreapNode<T>) cur.getRight();
       } else {
         result = min(result, cur.getValue());
-        cur = cur.getLeft();
+        cur = (TreapNode<T>) cur.getLeft();
       }
     }
     return result;
@@ -248,14 +251,14 @@ public class Treap<T extends Comparable<T>> implements BinarySearchTreeInterface
     }
     Node cur = this.root;
     T result = null;
-    while (cur != null) {
+    while (cur != null && cur.getValue() != null) {
       if (cur.getValue().equals(value)) {
         return value;
       } else if (cur.getValue().compareTo(value) > 0) {
-        cur = cur.getLeft();
+        cur = (TreapNode<T>) cur.getLeft();
       } else {
         result = max(result, cur.getValue());
-        cur = cur.getRight();
+        cur = (TreapNode<T>) cur.getRight();
       }
     }
     return result;

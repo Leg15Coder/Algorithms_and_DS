@@ -2,6 +2,8 @@ package structures.arrays;
 
 import structures.common.Pair;
 import structures.trees.search.Treap;
+import structures.trees.search.nodes.ArrayTreapNode;
+import structures.trees.search.nodes.PriorityNodeInterface;
 
 public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implements AutoSortedArrayInterface<T> {
   @Override
@@ -42,6 +44,8 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
       return sum;
     }
   }
+
+  protected Node root;
 
   private int checkIndex(int index) {
     if (index < -getSize() || index >= getSize()) {

@@ -1,48 +1,47 @@
 package structures.basic;
 
-import structures.basic.Stack;
-
-public class Queue<T> {
-  protected final Stack<T> left;
-  protected final Stack<T> right;
-
-  public Queue(int maxSize) {
-    this.left = new Stack<T>(maxSize);
-    this.right = new Stack<T>(maxSize);
-  }
+public class Queue<T> implements QueueInterface<T> {
+  protected final Stack<T> pushStack;
+  protected final Stack<T> popStack;
 
   public Queue() {
-    this.left = new Stack<T>();
-    this.right = new Stack<T>();
+    this.pushStack = new Stack<>();
+    this.popStack = new Stack<>();
   }
 
   private void moveStacksElements() {
-    if (right.isEmpty()) {
-      while (!left.isEmpty()) {
-        right.pushFront(left.popFront());
+    if (popStack.isEmpty()) {
+      while (!pushStack.isEmpty()) {
+        popStack.pushFront(pushStack.popFront());
       }
     }
   }
 
   public void pushFront(T element) {
-    left.pushFront(element);
+    pushStack.pushFront(element);
   }
 
   public T back() {
+    if (isEmpty()) {
+      return null;
+    }
     moveStacksElements();
-    return right.front();
+    return popStack.front();
   }
 
   public T popBack() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Очередь пуста, невозможно удалить элемент");
+    }
     moveStacksElements();
-    return right.popFront();
+    return popStack.popFront();
   }
 
   public boolean isEmpty() {
-    return left.isEmpty() && right.isEmpty();
+    return pushStack.isEmpty() && popStack.isEmpty();
   }
 
   public int getSize() {
-    return left.getSize() + right.getSize();
+    return pushStack.getSize() + popStack.getSize();
   }
 }
