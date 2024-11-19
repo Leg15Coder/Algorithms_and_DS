@@ -6,6 +6,4 @@ public interface AutoSortedArrayInterface<T extends Comparable<T>> extends Binar
   T sum(int left, int right);
 
   T sum(T min, T max);
-
-  int getIndex(T value);
 }

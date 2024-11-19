@@ -9,6 +9,8 @@ public interface ArrayInterface<T> {
 
   void setAt(int index, T value);
 
+  int getIndex(T value);
+
   T pop();
 
   boolean remove(T value);

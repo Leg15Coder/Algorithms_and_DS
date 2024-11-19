@@ -2,13 +2,15 @@ package structures.arrays;
 
 import java.util.NoSuchElementException;
 
-public class SimplyConnectedArray<T> implements ArrayInterface<T>{
+public class LinkedArray<T> implements ArrayInterface<T>{
   private Node root;
+  private Node leaf;
   private int size = 0;
 
   private class Node {
     private T value;
     private Node next;
+    private Node previous;
 
     public Node(T value) {
       this.value = value;
@@ -22,12 +24,20 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
       return this.next;
     }
 
+    public Node previous() {
+      return this.previous;
+    }
+
     public void setValue(T value) {
       this.value = value;
     }
 
     public void setNext(Node next) {
       this.next = next;
+    }
+
+    public void setPrevious(Node previous) {
+      this.previous = previous;
     }
   }
 
@@ -44,7 +54,7 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
   private Node goForward(int index) {
     index = checkIndex(index);
     int current = 0;
-    Node thisNode = this.root;
+    Node thisNode = this.leaf;
     while (current != index) {
       current++;
       thisNode = thisNode.next();
@@ -52,9 +62,33 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
     return thisNode;
   }
 
+  private Node goBack(int index) {
+    index = checkIndex(index);
+    int current = getSize() - 1;
+    Node thisNode = this.root;
+    while (current != index) {
+      current--;
+      thisNode = thisNode.previous();
+    }
+    return thisNode;
+  }
+
+  private Node getNearest(int index) {
+    index = checkIndex(index);
+    if (index > getSize() / 2) {
+      return goBack(index);
+    }
+    return goForward(index);
+  }
+
+  private void connectNodes(Node left, Node right) {
+    left.setNext(right);
+    right.setNext(left);
+  }
+
   @Override
   public T getAt(int index) {
-    Node thisNode = goForward(index);
+    Node thisNode = getNearest(index);
     return thisNode.getValue();
   }
 
@@ -65,12 +99,12 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
 
   @Override
   public T last() {
-    return getAt(getSize() - 1);
+    return this.leaf.getValue();
   }
 
   @Override
   public void setAt(int index, T value) {
-    Node thisNode = goForward(index);
+    Node thisNode = getNearest(index);
     thisNode.setValue(value);
   }
 
@@ -80,6 +114,10 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
     Node thisNode = this.root;
     if (isEmpty()) {
       throw new NoSuchElementException("В массиве нет такого элемента");
+    }
+
+    if (this.leaf.getValue().equals(value)) {
+      return getSize() - 1;
     }
 
     while (!thisNode.getValue().equals(value)) {
@@ -95,38 +133,53 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
   @Override
   public T pop() {
     if (getSize() == 1) {
-      T tmp = this.root.getValue();
+      T tmp = this.leaf.getValue();
       this.root = null;
+      this.leaf = null;
       return tmp;
     }
-    Node thisNode = goForward(getSize() - 2);
-    T tmp = thisNode.next().getValue();
+
+    Node thisNode = this.leaf.previous();
+    T tmp = this.leaf.getValue();
     thisNode.setNext(null);
     return tmp;
   }
 
   @Override
   public boolean remove(T value) {
-    if (this.root.getValue().equals(value)) {
-      this.root = this.root.next();
-      return true;
-    }
-
     if (isEmpty()) {
       return false;
     }
 
-    int index = 0;
+    if (this.root.getValue().equals(value)) {
+      if (getSize() == 1) {
+        this.root = null;
+        this.leaf = null;
+        return true;
+      }
+      this.root = this.root.next();
+      this.root.setPrevious(null);
+      return true;
+    }
+
+    if (this.leaf.getValue().equals(value)) {
+      this.leaf = this.leaf.previous();
+      this.leaf.setNext(null);
+      return true;
+    }
+
     Node thisNode = this.root;
 
     while (!thisNode.getValue().equals(value)) {
       thisNode = thisNode.next();
-      index++;
       if (thisNode == null) {
         return false;
       }
     }
-    remove(index);
+
+    thisNode.previous().setNext(thisNode.next());
+    thisNode.next().setPrevious(thisNode.previous());
+
     size--;
     return true;
   }
@@ -138,11 +191,21 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
     if (index == 0) {
       this.root = this.root.next();
       size--;
+
+      if (isEmpty()) {
+        clear();
+      }
+      return;
+    } else if (index == getSize() - 1) {
+      this.leaf = this.leaf.previous();
+      this.leaf.setNext(null);
       return;
     }
 
-    Node thisNode = goForward(index - 1);
-    thisNode.setNext(thisNode.next().next());
+    Node thisNode = getNearest(index);
+    thisNode.previous().setNext(thisNode.next());
+    thisNode.next().setPrevious(thisNode.previous());
+
     size--;
   }
 
@@ -151,15 +214,19 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
     Node newNode = new Node(value);
 
     if (index == 0) {
-      newNode.setNext(this.root);
+      connectNodes(newNode, this.root);
       this.root = newNode;
       size++;
       return;
+    } else if (index == getSize()) {
+      connectNodes(this.leaf, newNode);
+      this.leaf = newNode;
     }
 
-    Node thisNode = goForward(index - 1);
-    newNode.setNext(thisNode.next());
-    thisNode.setNext(newNode);
+    Node thisNode = getNearest(index);
+    connectNodes(thisNode.previous(), newNode);
+    connectNodes(newNode, thisNode);
+
     size++;
   }
 
@@ -177,6 +244,7 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
   public void clear() {
     this.size = 0;
     this.root = null;
+    this.leaf = null;
   }
 
   @Override
