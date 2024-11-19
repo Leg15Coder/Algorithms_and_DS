@@ -115,6 +115,18 @@ class SortingsTest {
 
   @Test
   void quickSort() {
-    // todo later
+    int size = rnd.nextInt(10000);
+    Long[] checker = new Long[size];
+    Long[] result = new Long[size];
+    for (int i = 0; i < size; ++i) {
+      long tmp = rnd.nextLong();
+      checker[i] = tmp;
+      result[i] = tmp;
+    }
+    sort(checker);
+    Sortings.bubbleSort(result);
+    for (int i = 0; i < size; ++i) {
+      assertEquals(result[i], checker[i]);
+    }
   }
 }
