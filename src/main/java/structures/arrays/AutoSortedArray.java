@@ -45,7 +45,7 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
 
   private int checkIndex(int index) {
     if (index < -getSize() || index >= getSize()) {
-      throw new  IllegalArgumentException("Выход за границы массива");
+      throw new IllegalArgumentException("Выход за границы массива");
     }
     if (index < 0) {
       return getSize() + index;
@@ -79,6 +79,23 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
       }
     }
     return null;
+  }
+
+  @Override
+  public T first() {
+    return getAt(0);
+  }
+
+  @Override
+  public T last() {
+    return getAt(getSize() - 1);
+  }
+
+  @Override
+  public void setAt(int index, T value) {
+    index = checkIndex(index);
+    remove(index);
+    insert(value, index);
   }
 
   @Override

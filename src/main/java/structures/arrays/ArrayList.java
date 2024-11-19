@@ -23,6 +23,7 @@ public class ArrayList<T> extends DynamicMemory<T> {
     this.nxt = 0;
   }
 
+  // @Override
   public boolean isEmpty() {
     return size == 0;
   }
