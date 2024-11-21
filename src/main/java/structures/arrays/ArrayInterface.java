@@ -3,7 +3,13 @@ package structures.arrays;
 public interface ArrayInterface<T> {
   T getAt(int index);
 
-  void add(T value);
+  T first();
+
+  T last();
+
+  void setAt(int index, T value);
+
+  int getIndex(T value);
 
   T pop();
 
@@ -18,4 +24,6 @@ public interface ArrayInterface<T> {
   int getSize();
 
   void clear();
+
+  boolean isEmpty();
 }
