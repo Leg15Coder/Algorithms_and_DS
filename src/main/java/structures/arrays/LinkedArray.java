@@ -52,9 +52,8 @@ public class LinkedArray<T> implements ArrayInterface<T>{
   }
 
   private Node goForward(int index) {
-    index = checkIndex(index);
     int current = 0;
-    Node thisNode = this.leaf;
+    Node thisNode = this.root;
     while (current != index) {
       current++;
       thisNode = thisNode.next();
@@ -63,9 +62,8 @@ public class LinkedArray<T> implements ArrayInterface<T>{
   }
 
   private Node goBack(int index) {
-    index = checkIndex(index);
     int current = getSize() - 1;
-    Node thisNode = this.root;
+    Node thisNode = this.leaf;
     while (current != index) {
       current--;
       thisNode = thisNode.previous();
@@ -82,8 +80,12 @@ public class LinkedArray<T> implements ArrayInterface<T>{
   }
 
   private void connectNodes(Node left, Node right) {
-    left.setNext(right);
-    right.setNext(left);
+    if (left != null) {
+      left.setNext(right);
+    }
+    if (right != null) {
+      right.setPrevious(left);
+    }
   }
 
   @Override
@@ -132,16 +134,20 @@ public class LinkedArray<T> implements ArrayInterface<T>{
 
   @Override
   public T pop() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Невозможно удалить последний элемент в пустом массиве");
+    }
+
     if (getSize() == 1) {
       T tmp = this.leaf.getValue();
-      this.root = null;
-      this.leaf = null;
+      clear();
       return tmp;
     }
 
-    Node thisNode = this.leaf.previous();
     T tmp = this.leaf.getValue();
-    thisNode.setNext(null);
+    this.leaf = this.leaf.previous();
+    connectNodes(this.leaf, null);
+    size--;
     return tmp;
   }
 
@@ -153,18 +159,19 @@ public class LinkedArray<T> implements ArrayInterface<T>{
 
     if (this.root.getValue().equals(value)) {
       if (getSize() == 1) {
-        this.root = null;
-        this.leaf = null;
+        clear();
         return true;
       }
       this.root = this.root.next();
-      this.root.setPrevious(null);
+      connectNodes(null, this.root);
+      size--;
       return true;
     }
 
     if (this.leaf.getValue().equals(value)) {
       this.leaf = this.leaf.previous();
-      this.leaf.setNext(null);
+      connectNodes(this.leaf, null);
+      size--;
       return true;
     }
 
@@ -177,10 +184,9 @@ public class LinkedArray<T> implements ArrayInterface<T>{
       }
     }
 
-    thisNode.previous().setNext(thisNode.next());
-    thisNode.next().setPrevious(thisNode.previous());
-
+    connectNodes(thisNode.previous(), thisNode.next());
     size--;
+
     return true;
   }
 
@@ -190,6 +196,7 @@ public class LinkedArray<T> implements ArrayInterface<T>{
 
     if (index == 0) {
       this.root = this.root.next();
+      connectNodes(null, this.root);
       size--;
 
       if (isEmpty()) {
@@ -198,14 +205,13 @@ public class LinkedArray<T> implements ArrayInterface<T>{
       return;
     } else if (index == getSize() - 1) {
       this.leaf = this.leaf.previous();
-      this.leaf.setNext(null);
+      connectNodes(this.leaf, null);
+      size--;
       return;
     }
 
     Node thisNode = getNearest(index);
-    thisNode.previous().setNext(thisNode.next());
-    thisNode.next().setPrevious(thisNode.previous());
-
+    connectNodes(thisNode.previous(), thisNode.next());
     size--;
   }
 
@@ -213,20 +219,30 @@ public class LinkedArray<T> implements ArrayInterface<T>{
   public void insert(T value, int index) {
     Node newNode = new Node(value);
 
-    if (index == 0) {
+    if (isEmpty() && index == 0) {
+      this.root = newNode;
+      this.leaf = newNode;
+      size++;
+      return;
+    }
+
+    if (index == 0 || index == -getSize()) {
       connectNodes(newNode, this.root);
       this.root = newNode;
       size++;
       return;
-    } else if (index == getSize()) {
-      connectNodes(this.leaf, newNode);
-      this.leaf = newNode;
     }
 
-    Node thisNode = getNearest(index);
+    if (index == getSize()) {
+      connectNodes(this.leaf, newNode);
+      this.leaf = newNode;
+      size++;
+      return;
+    }
+
+    Node thisNode = getNearest(checkIndex(index));
     connectNodes(thisNode.previous(), newNode);
     connectNodes(newNode, thisNode);
-
     size++;
   }
 

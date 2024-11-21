@@ -156,7 +156,7 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
   public void insert(T value, int index) {
     Node newNode = new Node(value);
 
-    if (index == 0) {
+    if (index == 0 || index == -getSize()) {
       newNode.setNext(this.root);
       this.root = newNode;
       size++;
