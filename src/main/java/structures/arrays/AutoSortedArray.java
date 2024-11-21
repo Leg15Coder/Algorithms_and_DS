@@ -93,9 +93,7 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
 
   @Override
   public void setAt(int index, T value) {
-    index = checkIndex(index);
-    remove(index);
-    insert(value, index);
+    throw new UnsupportedOperationException("Нельзя изменить элемент массива, так как иначе может сбиться свойство отсортированности");
   }
 
   @Override

@@ -1,6 +1,6 @@
 package structures.basic;
 
-class Stack<T> {
+public class Stack<T> {
   private final DynamicMemory<T> stackArray = new DynamicMemory<>();
 
   public T front() {

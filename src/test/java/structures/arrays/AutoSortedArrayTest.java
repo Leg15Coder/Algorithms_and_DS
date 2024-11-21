@@ -86,6 +86,35 @@ class AutoSortedArrayTest {
   }
 
   @Test
+  void last() {
+    int size = rnd.nextInt(1000);
+    Long last = null;
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      Long tmp = rnd.nextLong();
+      if (last == null || tmp.compareTo(last) > 0) {
+        last = tmp;
+      }
+      tree.add(last);
+    }
+    assertEquals(last, tree.last());
+  }
+
+  @Test
+  void setAt() {
+    int size = rnd.nextInt(1000);
+    int n = rnd.nextInt(size);
+    AutoSortedArray<Long> tree = new AutoSortedArray<>();
+    for (int i = 0; i < size; ++i) {
+      tree.add(rnd.nextLong());
+    }
+    for (int i = 0; i < n; ++i) {
+      int finalI = i;
+      assertThrows(UnsupportedOperationException.class, () -> tree.setAt(finalI, rnd.nextLong()));
+    }
+  }
+
+  @Test
   void next() {
     int size = rnd.nextInt(1000);
     long[] toCheck = new long[size];
@@ -305,11 +334,11 @@ class AutoSortedArrayTest {
     }
     for (int i = size; i <= 2 * size; ++i) {
       int finalI = i;
-      assertThrows(IllegalArgumentException.class, () -> tree.getAt(finalI));
+      assertThrows(IndexOutOfBoundsException.class, () -> tree.getAt(finalI));
     }
     for (int i = size + 1; i <= 2 * size; ++i) {
       int finalI = i;
-      assertThrows(IllegalArgumentException.class, () -> tree.getAt(-finalI));
+      assertThrows(IndexOutOfBoundsException.class, () -> tree.getAt(-finalI));
     }
   }
 

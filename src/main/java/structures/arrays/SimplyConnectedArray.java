@@ -94,26 +94,33 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
 
   @Override
   public T pop() {
+    if (isEmpty()) {
+      throw new IllegalStateException("Невозможно удалить последний элемент в пустом массиве");
+    }
+
     if (getSize() == 1) {
       T tmp = this.root.getValue();
       this.root = null;
+      size--;
       return tmp;
     }
     Node thisNode = goForward(getSize() - 2);
     T tmp = thisNode.next().getValue();
     thisNode.setNext(null);
+    size--;
     return tmp;
   }
 
   @Override
   public boolean remove(T value) {
-    if (this.root.getValue().equals(value)) {
-      this.root = this.root.next();
-      return true;
-    }
-
     if (isEmpty()) {
       return false;
+    }
+
+    if (this.root.getValue().equals(value)) {
+      this.root = this.root.next();
+      size--;
+      return true;
     }
 
     int index = 0;
@@ -127,7 +134,6 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
       }
     }
     remove(index);
-    size--;
     return true;
   }
 
@@ -157,7 +163,8 @@ public class SimplyConnectedArray<T> implements ArrayInterface<T>{
       return;
     }
 
-    Node thisNode = goForward(index - 1);
+    index = checkIndex(index - 1);
+    Node thisNode = goForward(index);
     newNode.setNext(thisNode.next());
     thisNode.setNext(newNode);
     size++;
