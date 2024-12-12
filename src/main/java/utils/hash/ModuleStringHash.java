@@ -1,18 +1,18 @@
 package utils.hash;
 
-public class ModuleHash implements HashInterface<String> {
+public class ModuleStringHash implements HashInterface<String> {
   private final long MOD;
-  private final long BASE;
+  private final int BASE;
   private final long MIN;
 
-  public ModuleHash(long mod, long base) {
+  public ModuleStringHash(long mod, int base) {
     checkValues(mod, base);
     this.MOD = mod;
     this.BASE = base;
     this.MIN = 0L;
   }
 
-  public ModuleHash(long mod, long base, char min) {
+  public ModuleStringHash(long mod, int base, char min) {
     checkValues(mod, base);
     this.MOD = mod;
     this.BASE = base;
@@ -29,13 +29,13 @@ public class ModuleHash implements HashInterface<String> {
   }
 
   @Override
-  public Long hash(String obj) {
-    long h = 0L;
+  public Integer hash(String obj) {
+    int h = 0;
 
     for (int i = 0; i < obj.length(); ++i) {
       h *= BASE;
-      h += obj.charAt(i) - MIN;
-      h %= MOD;
+      h += (int) (obj.charAt(i) - MIN);
+      h %= (int) MOD;
     }
 
     return h;
@@ -44,5 +44,15 @@ public class ModuleHash implements HashInterface<String> {
   @Override
   public boolean isInCollision(String left, String right) {
     return hash(left).equals(hash(right));
+  }
+
+  @Override
+  public Integer minValue() {
+    return 0;
+  }
+
+  @Override
+  public Integer maxValue() {
+    return (int) (this.MOD - 1);
   }
 }

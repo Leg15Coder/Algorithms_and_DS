@@ -7,11 +7,11 @@ import java.util.List;
 
 public class ModuleListHash implements HashInterface<String> {
   private final ArrayInterface<Long> MODS;
-  private final ArrayInterface<Long> BASES;
+  private final ArrayInterface<Integer> BASES;
   private final long MIN;
   private final long MAX_MOD = 1L; // todo later
 
-  public ModuleListHash(ArrayInterface<Long> mods, ArrayInterface<Long> bases) {
+  public ModuleListHash(ArrayInterface<Long> mods, ArrayInterface<Integer> bases) {
     checkValues(mods, bases);
     this.MODS = mods;
     this.BASES = bases;
@@ -19,14 +19,14 @@ public class ModuleListHash implements HashInterface<String> {
     // this.MAX_MOD = max(mods);
   }
 
-  public ModuleListHash(ArrayInterface<Long> mods, ArrayInterface<Long> bases, char min) {
+  public ModuleListHash(ArrayInterface<Long> mods, ArrayInterface<Integer> bases, char min) {
     checkValues(mods, bases);
     this.MODS = mods;
     this.BASES = bases;
     this.MIN = min;
   }
 
-  private static void checkValues(ArrayInterface<Long> mods, ArrayInterface<Long> bases) {
+  private static void checkValues(ArrayInterface<Long> mods, ArrayInterface<Integer> bases) {
     if (mods.getSize() != bases.getSize()) {
       throw new IllegalArgumentException("Массивы модулей и оснований должны иметь равные длины");
     }
@@ -46,15 +46,15 @@ public class ModuleListHash implements HashInterface<String> {
     }
   }
 
-  public List<Long> hashList(String obj) {
-    List<Long> result = new ArrayList<>();
+  public List<Integer> hashList(String obj) {
+    List<Integer> result = new ArrayList<>();
 
     for (int j = 0; j < MODS.getSize(); ++j) {
-      long h = 0L;
+      int h = 0;
 
       for (int i = 0; i < obj.length(); ++i) {
         h *= BASES.getAt(j);
-        h += obj.charAt(i) - MIN;
+        h += (int) (obj.charAt(i) - MIN);
         h %= MODS.getAt(j);
       }
 
@@ -65,11 +65,11 @@ public class ModuleListHash implements HashInterface<String> {
   }
 
   @Override
-  public Long hash(String obj) {
-    long h = 0L;
+  public Integer hash(String obj) {
+    int h = 0;
     for (var cur : hashList(obj)) {
       h += cur;
-      h %= MAX_MOD;
+      h %= (int) MAX_MOD;
     }
 
     return h;
@@ -78,5 +78,15 @@ public class ModuleListHash implements HashInterface<String> {
   @Override
   public boolean isInCollision(String left, String right) {
     return hashList(left).equals(hashList(right));
+  }
+
+  @Override
+  public Integer minValue() {
+    return 0; // todo
+  }
+
+  @Override
+  public Integer maxValue() {
+    return 0; // todo
   }
 }

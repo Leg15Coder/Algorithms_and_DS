@@ -2,7 +2,7 @@ package structures.arrays;
 
 import java.util.NoSuchElementException;
 
-public class SimplyConnectedArray<T> implements ArrayInterface<T>{
+public class SimplyConnectedArray<T> implements ArrayInterface<T> {
   private Node root;
   private int size = 0;
 
