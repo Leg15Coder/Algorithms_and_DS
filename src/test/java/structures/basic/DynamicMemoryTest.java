@@ -1,7 +1,7 @@
 package structures.basic;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import structures.basic.exceptions.AccessingToMemoryException;
 
 import java.util.Random;
 
@@ -19,8 +19,8 @@ class DynamicMemoryTest {
     for (int i = 0; i < size; ++i) {
       memory.add(rnd.nextLong());
     }
-    assertThrows(IllegalArgumentException.class,() -> memory.checkIndex(-size - 100));
-    assertThrows(IllegalArgumentException.class,() -> memory.checkIndex(size + 100));
+    assertThrows(AccessingToMemoryException.class,() -> memory.checkIndex(-size - 100));
+    assertThrows(AccessingToMemoryException.class,() -> memory.checkIndex(size + 100));
     for (int i = 0; i < 10; ++i) {
       assertTrue(memory.checkIndex(rnd.nextInt(-size, size - 1)) >= 0);
     }
@@ -106,5 +106,12 @@ class DynamicMemoryTest {
       memory.add(rnd.nextLong());
     }
     assertEquals(size, memory.getSize());
+  }
+
+  @Test
+  void checkString() {
+    DynamicMemory<Long> memory = new DynamicMemory<>();
+    memory.add(rnd.nextLong());
+    assertNotNull(memory.toString());
   }
 }

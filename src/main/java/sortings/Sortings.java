@@ -3,7 +3,7 @@ package sortings;
 import structures.basic.Queue;
 
 class Sortings {
-  public static <T extends Comparable<T>> long mergeSort(T[] array) {
+  public static <T extends Comparable<T>> long mergeSort(T[] array) { // todo JUnit test for count
     return mergeSortWithCount(array, 0, array.length - 1);
   }
 
@@ -41,33 +41,6 @@ class Sortings {
     }
     while (j < rightArray.length) {
       array[k++] = (T) rightArray[j++];
-    }
-    return count;
-  }
-
-  private static long merge(int[] array, int left, int middle, int right) {
-    int[] leftArray = new int[middle - left + 1];
-    int[] rightArray = new int[right - middle];
-
-    System.arraycopy(array, left, leftArray, 0, leftArray.length);
-    System.arraycopy(array, middle + 1, rightArray, 0, rightArray.length);
-
-    int i = 0, j = 0, k = left;
-    long count = 0;
-
-    while (i < leftArray.length && j < rightArray.length) {
-      if (leftArray[i] <= rightArray[j]) {
-        array[k++] = leftArray[i++];
-      } else {
-        array[k++] = rightArray[j++];
-        count += middle + 1L - left - i;
-      }
-    }
-    while (i < leftArray.length) {
-      array[k++] = leftArray[i++];
-    }
-    while (j < rightArray.length) {
-      array[k++] = rightArray[j++];
     }
     return count;
   }
@@ -152,20 +125,49 @@ class Sortings {
     }
   }
 
-  public static <T extends Comparable<T>> void bubbleSort(T[] arr) {
-    for (int i = 0; i < arr.length; i++) {
-      for (int j = i + 1; j < arr.length; j++) {
-        if (arr[i].compareTo(arr[j]) > 0) {
-          T temp = arr[i];
-          arr[i] = arr[j];
-          arr[j] = temp;
+  public static <T extends Comparable<T>> void bubbleSort(T[] array) {
+    for (int i = 0; i < array.length; i++) {
+      for (int j = i + 1; j < array.length; j++) {
+        if (array[i].compareTo(array[j]) > 0) {
+          T temp = array[i];
+          array[i] = array[j];
+          array[j] = temp;
         }
       }
     }
   }
 
+  public static <T extends Comparable<T>> void quickSort(T[] array) {
+    quickSort(array, 0, array.length);
+  }
 
-  public static <T extends Comparable<T>> void quickSort() {
+  private static <T extends Comparable<T>> void quickSort(T[] array, int left, int right) {
+    if (left < right) {
+      int middle = partition(array, left, right);
 
+      quickSort(array, left, middle);
+      quickSort(array, middle, right);
+    }
+  }
+
+  private static <T extends Comparable<T>> int partition(T[] array, int left, int right) {
+    right--;
+    T pivot = array[right];
+    int index = left;
+
+    for (int i = left; i < right; i++) {
+      if (array[i].compareTo(pivot) <= 0) {
+        T temp = array[index];
+        array[index] = array[i];
+        array[i] = temp;
+        index++;
+      }
+    }
+
+    T temp = array[index];
+    array[index] = array[right];
+    array[right] = temp;
+
+    return index;
   }
 }

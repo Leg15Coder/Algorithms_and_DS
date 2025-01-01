@@ -3,10 +3,10 @@ package structures.arrays;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-class ArrayListTest extends ArrayTest {
+class SimplyConnectedArrayTest extends ArrayTest {
   @BeforeEach
   void beforeEach() {
-    arr = new ArrayList<>();
+    arr = new SimplyConnectedArray<>();
     size = rnd.nextInt(10000);
   }
 

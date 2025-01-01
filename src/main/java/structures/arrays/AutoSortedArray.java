@@ -3,7 +3,16 @@ package structures.arrays;
 import structures.common.Pair;
 import structures.trees.search.Treap;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implements AutoSortedArrayInterface<T> {
+  public AutoSortedArray() {}
+
+  public AutoSortedArray(Iterable<T> values) {
+    addAllFromList(values);
+  }
+
   @Override
   protected void updateNode(Treap<T>.Node node) {
     if (node.getLeft() == null && node.getRight() == null) {
@@ -45,12 +54,19 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
 
   private int checkIndex(int index) {
     if (index < -getSize() || index >= getSize()) {
-      throw new  IllegalArgumentException("Выход за границы массива");
+      throw new IndexOutOfBoundsException("Выход за границы массива");
     }
     if (index < 0) {
       return getSize() + index;
     }
     return index;
+  }
+
+  @Override
+  public void addAllFromList(Iterable<T> values) {
+    for (var value : values) {
+      insert(value);
+    }
   }
 
   @Override
@@ -79,6 +95,21 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
       }
     }
     return null;
+  }
+
+  @Override
+  public T first() {
+    return getAt(0);
+  }
+
+  @Override
+  public T last() {
+    return getAt(getSize() - 1);
+  }
+
+  @Override
+  public void setAt(int index, T value) {
+    throw new UnsupportedOperationException("Нельзя изменить элемент массива, так как иначе может сбиться свойство отсортированности");
   }
 
   @Override
@@ -148,5 +179,30 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
       return 0;
     }
     return ((Node) this.root.getSubNode()).getSize();
+  }
+
+  @Override
+  public Iterator<T> iterator() { // todo rewrite with better asymptotic
+    return new Iterator<>() {
+      private int currentIndex = 0;
+
+      @Override
+      public boolean hasNext() {
+        return currentIndex < getSize();
+      }
+
+      @Override
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException("Больше нет элементов для итерации");
+        }
+        return getAt(currentIndex++);
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Удаление элементов через итератор не поддерживается");
+      }
+    };
   }
 }

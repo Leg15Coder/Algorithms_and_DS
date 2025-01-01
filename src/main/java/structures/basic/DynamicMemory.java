@@ -1,5 +1,8 @@
 package structures.basic;
 
+import structures.basic.exceptions.AccessingToMemoryException;
+import structures.basic.exceptions.DeallocateException;
+
 public class DynamicMemory<T> {
   protected Object[] array;
   protected Object[] previous;
@@ -16,7 +19,7 @@ public class DynamicMemory<T> {
 
   protected int checkIndex(int index) {
     if (index < -size || index >= size){
-      throw new IllegalArgumentException("Выход за границы массива");
+      throw new AccessingToMemoryException("Выход за границы памяти");
     }
     if (index < 0) {
       return size + index;
@@ -33,7 +36,7 @@ public class DynamicMemory<T> {
 
   protected void deallocate() { // todo later
     if (getMaxSize() == 2) {
-      throw new RuntimeException("Нельзя деаллоцировать массив до размера 1");
+      throw new DeallocateException("Нельзя деаллоцировать массив до размера 1");
     }
     this.next = array;
     this.array = previous;
@@ -55,7 +58,7 @@ public class DynamicMemory<T> {
 
   public T pop() {
     if (getSize() == 0) {
-      throw new IllegalStateException("Нельзя удалять элементы из пустого объекта");
+      throw new AccessingToMemoryException("Нельзя удалять элементы из пустого объекта");
     }
     // if (size == array.length / 2) {
     //   deallocate();
