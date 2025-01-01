@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import structures.basic.Deque;
 import structures.basic.Stack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
@@ -268,6 +270,21 @@ public abstract class ArrayTest {
   }
 
   @Test
+  void testIterator() {
+    long[] toCheck = new long[size];
+    for (int i = 0; i < size; ++i) {
+      var tmp = rnd.nextLong();
+      toCheck[i] = tmp;
+      arr.insert(tmp);
+    }
+
+    int i = 0;
+    for (var element : arr) {
+      assertEquals(toCheck[i++], element);
+    }
+  }
+
+  @Test
   void getSize() {
     for (int i = 0; i < size; ++i) {
       arr.insert(rnd.nextLong());
@@ -302,5 +319,19 @@ public abstract class ArrayTest {
   @Test
   void checkString() {
     assertNotNull(arr.toString());
+  }
+
+  @Test
+  void checkIterableConstruct() {
+    List<Long> lst = new ArrayList<>();
+    for (int i = 0; i < size; ++i) {
+      lst.add(rnd.nextLong());
+    }
+
+    arr.addAllFromList(lst);
+
+    for (int i = 0; i < size; ++i) {
+      assertEquals(lst.get(i), arr.getAt(i));
+    }
   }
 }

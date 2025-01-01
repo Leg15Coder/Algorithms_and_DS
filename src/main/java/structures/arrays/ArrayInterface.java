@@ -1,6 +1,8 @@
 package structures.arrays;
 
-public interface ArrayInterface<T> {
+public interface ArrayInterface<T> extends Iterable<T> {
+  void addAllFromList(Iterable<T> values);
+
   T getAt(int index);
 
   T first();

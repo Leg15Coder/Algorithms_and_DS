@@ -3,10 +3,29 @@ package structures.arrays;
 import structures.basic.DynamicMemory;
 import structures.basic.exceptions.DynamicMemoryException;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class ArrayList<T> implements ArrayInterface<T> {
-  private DynamicMemory<T> memory = new DynamicMemory<>();
+  private DynamicMemory<T> memory;
+
+  public ArrayList() {
+    this.memory = new DynamicMemory<>();
+  }
+
+  public ArrayList(Iterable<T> values) {
+    this.memory = new DynamicMemory<>();
+    for (var value : values) {
+      insert(value);
+    }
+  }
+
+  @Override
+  public void addAllFromList(Iterable<T> values) {
+    for (var value : values) {
+      insert(value);
+    }
+  }
 
   @Override
   public T getAt(int index) {
@@ -150,5 +169,30 @@ public class ArrayList<T> implements ArrayInterface<T> {
     }
     result.append("]");
     return result.toString();
+  }
+
+  @Override
+  public Iterator<T> iterator() {
+    return new Iterator<>() {
+      private int currentIndex = 0;
+
+      @Override
+      public boolean hasNext() {
+        return currentIndex < getSize();
+      }
+
+      @Override
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException("Больше нет элементов для итерации");
+        }
+        return getAt(currentIndex++);
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Удаление элементов через итератор не поддерживается");
+      }
+    };
   }
 }

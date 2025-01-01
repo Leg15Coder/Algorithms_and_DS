@@ -1,11 +1,18 @@
 package structures.arrays;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class LinkedArray<T> implements ArrayInterface<T>{
   private Node root;
   private Node leaf;
   private int size = 0;
+
+  public LinkedArray() {}
+
+  public LinkedArray(Iterable<T> values) {
+    addAllFromList(values);
+  }
 
   private class Node {
     private T value;
@@ -85,6 +92,13 @@ public class LinkedArray<T> implements ArrayInterface<T>{
     }
     if (right != null) {
       right.setPrevious(left);
+    }
+  }
+
+  @Override
+  public void addAllFromList(Iterable<T> values) {
+    for (var value : values) {
+      insert(value);
     }
   }
 
@@ -259,5 +273,32 @@ public class LinkedArray<T> implements ArrayInterface<T>{
   @Override
   public boolean isEmpty() {
     return this.size == 0;
+  }
+
+  @Override
+  public Iterator<T> iterator() {
+    return new Iterator<>() {
+      private Node currentNode = root;
+
+      @Override
+      public boolean hasNext() {
+        return currentNode.next != null;
+      }
+
+      @Override
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException("Больше нет элементов для итерации");
+        }
+        T result = currentNode.value;
+        currentNode = currentNode.next();
+        return result;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Удаление элементов через итератор не поддерживается");
+      }
+    };
   }
 }
