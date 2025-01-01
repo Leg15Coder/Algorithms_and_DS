@@ -1,9 +1,17 @@
 package structures.arrays;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.jupiter.api.Assertions.*;
+class ArrayListTest extends ArrayTest {
+  @BeforeEach
+  void beforeEach() {
+    arr = new ArrayList<>();
+    size = rnd.nextInt(10000);
+  }
 
-class ArrayListTest { // todo later
-
+  @AfterEach
+  void afterEach() {
+    arr.clear();
+  }
 }

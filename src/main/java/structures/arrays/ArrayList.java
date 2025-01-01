@@ -70,6 +70,10 @@ public class ArrayList<T> implements ArrayInterface<T> {
   public void remove(int index) {
     try {
       getAt(index);
+
+      if (index < 0) {
+        index = -index - 1;
+      }
     } catch (DynamicMemoryException e) {
       throw new IndexOutOfBoundsException("Выход за границы массива");
     }
@@ -86,12 +90,17 @@ public class ArrayList<T> implements ArrayInterface<T> {
 
   @Override
   public void insert(T value, int index) {
-    if (index == getSize()) {
+    if (index == getSize() || index == -(getSize() + 1)) {
       insert(value);
+      return;
     }
 
     try {
       getAt(index);
+
+      if (index < 0) {
+        index = -index - 1;
+      }
     } catch (DynamicMemoryException e) {
       throw new IndexOutOfBoundsException("Выход за границы массива");
     }
@@ -99,13 +108,13 @@ public class ArrayList<T> implements ArrayInterface<T> {
     T tmp = value;
     while (index <= getSize()) {
       if (index == getSize()) {
-        memory.add(null);
+        memory.add(tmp);
+        break;
       }
-      T next = memory.get(index);
-      memory.set(tmp, index);
-      tmp = next;
 
-      ++index;
+      T next = memory.get(index);
+      memory.set(tmp, index++);
+      tmp = next;
     }
   }
 
@@ -126,6 +135,20 @@ public class ArrayList<T> implements ArrayInterface<T> {
 
   @Override
   public boolean isEmpty() {
-    return memory.getSize() == 0;
+    return getSize() == 0;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder result = new StringBuilder("[");
+    for (int index = 0; index < getSize(); ++index) {
+      result.append(getAt(index));
+
+      if (index + 1 != getSize()) {
+        result.append(", ");
+      }
+    }
+    result.append("]");
+    return result.toString();
   }
 }

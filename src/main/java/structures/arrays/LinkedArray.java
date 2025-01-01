@@ -168,13 +168,6 @@ public class LinkedArray<T> implements ArrayInterface<T>{
       return true;
     }
 
-    if (this.leaf.getValue().equals(value)) {
-      this.leaf = this.leaf.previous();
-      connectNodes(this.leaf, null);
-      size--;
-      return true;
-    }
-
     Node thisNode = this.root;
 
     while (!thisNode.getValue().equals(value)) {
