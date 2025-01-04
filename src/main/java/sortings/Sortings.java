@@ -2,7 +2,7 @@ package sortings;
 
 import structures.basic.Queue;
 
-class Sortings {
+public class Sortings {
   public static <T extends Comparable<T>> long mergeSort(T[] array) { // todo JUnit test for count
     return mergeSortWithCount(array, 0, array.length - 1);
   }

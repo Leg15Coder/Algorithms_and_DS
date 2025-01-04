@@ -1,6 +1,7 @@
 package structures.arrays;
 
 import structures.common.Pair;
+import structures.trees.search.BinarySearchTree;
 import structures.trees.search.Treap;
 
 import java.util.Iterator;
@@ -14,7 +15,7 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
   }
 
   @Override
-  protected void updateNode(Treap<T>.Node node) {
+  protected void updateNode(BinarySearchTree<T>.Node node) {
     if (node.getLeft() == null && node.getRight() == null) {
       ((Node) node.getSubNode()).index = 0;
       ((Node) node.getSubNode()).subtreesSize = 1;
@@ -34,10 +35,14 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
     }
   }
 
-  private class Node {
+  private class Node extends Treap<T>.Node {
     int subtreesSize;
     int index;
     T sum; // todo later
+
+    public Node(int priority) {
+      super(priority);
+    }
 
     public int getSize() {
       return this.subtreesSize;
@@ -71,19 +76,19 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
 
   @Override
   public void add(T value, int priority) {
-    Node expansion = new Node();
+    Node expansion = new Node(priority);
     if (isEmpty()) {
-      this.root = new Treap<T>.Node(value, priority, expansion);
+      this.root = new BinarySearchTree<T>.Node(value, expansion);
       return;
     }
-    Pair<Treap<T>.Node, Treap<T>.Node> tmp = splitMoreOrEq(this.root, value);
-    this.root = merge(tmp.first, merge(tmp.second, new Treap<T>.Node(value, priority, expansion)));
+    Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> tmp = splitMoreOrEq(this.root, value);
+    this.root = merge(tmp.first, merge(tmp.second, new BinarySearchTree<T>.Node(value, expansion)));
   }
 
   @Override
   public T getAt(int index) {
     index = checkIndex(index);
-    Treap<T>.Node cur = super.root;
+    BinarySearchTree<T>.Node cur = this.root;
     while (index >= 0) {
       if (((Node) cur.getSubNode()).getIndex() == index) {
         return cur.getValue();
@@ -150,8 +155,8 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
 
   @Override
   public T sum(T min, T max) {
-    Pair<Treap<T>.Node, Treap<T>.Node> leftPair = super.splitMoreOrEq(this.root, min);
-    Pair<Treap<T>.Node, Treap<T>.Node> rightPair = super.splitLessOrEq(leftPair.second, max);
+    Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> leftPair = super.splitMoreOrEq(this.root, min);
+    Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> rightPair = super.splitLessOrEq(leftPair.second, max);
     return ((Node) rightPair.first.getSubNode()).getSum();
   }
 
@@ -163,7 +168,7 @@ public class AutoSortedArray<T extends Comparable<T>> extends Treap<T> implement
     return getIndex(this.root, value);
   }
 
-  private int getIndex(Treap<T>.Node cur, T value) {
+  private int getIndex(BinarySearchTree<T>.Node cur, T value) {
     if (cur.getValue().equals(value)) {
       return ((Node) cur.getSubNode()).getIndex();
     }
