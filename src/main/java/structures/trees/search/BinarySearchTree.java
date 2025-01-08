@@ -93,7 +93,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
 
   @Override
   public boolean remove(T value) {
-    if (get(this.root, value)) {
+    if (get(value)) {
       this.root = remove(this.root, value);
       --size;
       return true;
@@ -103,7 +103,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
 
   @Override
   public boolean delete(T value) {
-    if (get(this.root, value)) {
+    if (get(value)) {
       this.root = delete(this.root, value);
       return true;
     }
@@ -132,6 +132,7 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
         Node mn = getMin(cur.getRight());
         cur.value = mn.value;
         cur.count = mn.count;
+        this.size += (int) cur.count;
         cur.setRight(delete(cur.getRight(), cur.getValue()));
       }
     }
@@ -169,9 +170,21 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
 
   @Override
   public boolean get(T value) {
-    if (!isEmpty()) {
-      return get(this.root, value);
+    if (isEmpty()) {
+      return false;
     }
+
+    Node cur = this.root;
+    while (cur != null) {
+      if (cur.getValue().equals(value)) {
+        return true;
+      } else if (cur.getValue().compareTo(value) > 0) {
+        cur = cur.getLeft();
+      } else {
+        cur = cur.getRight();
+      }
+    }
+
     return false;
   }
 
@@ -243,17 +256,6 @@ public class BinarySearchTree<T extends Comparable<T>> implements BinarySearchTr
       return cur;
     }
     return getMax(cur.getRight());
-  }
-
-  protected boolean get(Node cur, T value) {
-    if (cur.value.equals(value)) {
-      return true;
-    } else if (cur.value.compareTo(value) > 0 && cur.getLeft() != null) {
-      return get(cur.getLeft(), value);
-    } else if (cur.value.compareTo(value) < 0 && cur.getRight() != null) {
-      return get(cur.getRight(), value);
-    }
-    return false;
   }
 
   @Override

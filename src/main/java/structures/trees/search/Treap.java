@@ -3,9 +3,6 @@ package structures.trees.search;
 import structures.common.Pair;
 import java.util.Random;
 
-import static utils.Compare.max;
-import static utils.Compare.min;
-
 public class Treap<T extends Comparable<T>> extends BinarySearchTree<T> {
   protected class Node {
     int priority;
@@ -81,135 +78,71 @@ public class Treap<T extends Comparable<T>> extends BinarySearchTree<T> {
     }
   }
 
+  private Pair<BinarySearchTree<T>.Node, Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node>> extract(T value) {
+    Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> less = splitMoreOrEq(this.root, value);
+    Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> more = splitLessOrEq(less.second, value);
+
+    return new Pair<>(
+        more.first,
+        new Pair<>(less.first, more.second)
+    );
+  }
+
   @Override
   public void add(T value) {
-    ++size;
     int priority = random.nextInt();
     add(value, priority);
   }
 
   public void add(T value, int priority) {
     if (isEmpty()) {
+      ++size;
       this.root = new BinarySearchTree<T>.Node(value, new Node(priority));
       return;
     }
+
+    if (get(value)) {
+      super.add(value);
+      return;
+    }
+
+    ++size;
     Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> tmp = splitMoreOrEq(this.root, value);
     this.root = merge(tmp.first, merge(tmp.second, new BinarySearchTree<T>.Node(value, new Node(priority))));
   }
 
   @Override
   public boolean remove(T value) {
-    if (get(value)) {
-      Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> less = splitMoreOrEq(this.root, value);
-      Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> more = splitLessOrEq(less.second, value);
-      this.root = merge(less.first, merge(merge(more.first.getLeft(), more.first.getRight()), more.second));
+    var pair = extract(value);
+
+    if (pair.first != null) {
+      pair.first.decrease();
+
+      if (!pair.first.empty()) {
+        this.root = merge(pair.second.first, merge(pair.first, pair.second.second));
+      } else {
+        this.root = merge(pair.second.first, pair.second.second);
+      }
+
       --size;
       return true;
+    } else {
+      this.root = merge(pair.second.first, pair.second.second);
     }
+
     return false;
   }
 
   @Override
   public boolean delete(T value) {
-    if (get(value)) {
-      Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> less = splitMoreOrEq(this.root, value);
-      Pair<BinarySearchTree<T>.Node, BinarySearchTree<T>.Node> more = splitLessOrEq(less.second, value);
-      this.root = merge(less.first, more.second);
-      size -= count(less.second) + count(more.first);
+    var pair = extract(value);
+    this.root = merge(pair.second.first, pair.second.second);
+
+    if (pair.first != null) {
+      this.size -= (int) pair.first.count;
       return true;
     }
-    return false;
-  }
-
-  @Override
-  public boolean get(T value) {
-    if (isEmpty()) {
-      return false;
-    }
-
-    BinarySearchTree<T>.Node cur = this.root;
-    while (cur != null) {
-      if (cur.getValue().equals(value)) {
-        return true;
-      } else if (cur.getValue().compareTo(value) > 0) {
-        cur = cur.getLeft();
-      } else {
-        cur = cur.getRight();
-      }
-    }
 
     return false;
-  }
-
-  @Override
-  public T getMin() {
-    if (isEmpty()) {
-      return null;
-    }
-    BinarySearchTree<T>.Node cur = this.root;
-    while (cur.getLeft() != null) {
-      cur = cur.getLeft();
-    }
-    return cur.getValue();
-  }
-
-  @Override
-  public T getMax() {
-    if (isEmpty()) {
-      return null;
-    }
-    BinarySearchTree<T>.Node cur = this.root;
-    while (cur.getRight() != null) {
-      cur = cur.getRight();
-    }
-    return cur.getValue();
-  }
-
-  @Override
-  public T next(T value) {
-    if (isEmpty()) {
-      return null;
-    }
-    BinarySearchTree<T>.Node cur = this.root;
-    T result = null;
-    while (cur != null) {
-      if (cur.getValue().equals(value)) {
-        return value;
-      } else if (cur.getValue().compareTo(value) < 0) {
-        cur = cur.getRight();
-      } else {
-        result = min(result, cur.getValue());
-        cur = cur.getLeft();
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public T previous(T value) {
-    if (isEmpty()) {
-      return null;
-    }
-    BinarySearchTree<T>.Node cur = this.root;
-    T result = null;
-    while (cur != null) {
-      if (cur.getValue().equals(value)) {
-        return value;
-      } else if (cur.getValue().compareTo(value) > 0) {
-        cur = cur.getLeft();
-      } else {
-        result = max(result, cur.getValue());
-        cur = cur.getRight();
-      }
-    }
-    return result;
-  }
-
-  private int count(BinarySearchTree<T>.Node cur) {
-    if (cur == null) {
-      return 0;
-    }
-
-    return (int) (count(cur.getLeft()) + cur.count + count(cur.getRight()));
   }
 }

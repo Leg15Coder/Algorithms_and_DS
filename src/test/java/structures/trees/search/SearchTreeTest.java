@@ -49,8 +49,8 @@ public abstract class SearchTreeTest {
 
     for (int i = 0; i < size; ++i) {
       var e = toCheck[i];
-      assertTrue(tree.get(e));
-      tree.remove(e);
+      assertTrue(tree.remove(e));
+
       if (i < sizeUnique) {
         assertFalse(tree.get(e));
       } else {
@@ -217,6 +217,7 @@ public abstract class SearchTreeTest {
   @Test
   void size() {
     long[] toCheck = new long[size];
+    int copySize = size;
 
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
@@ -224,11 +225,53 @@ public abstract class SearchTreeTest {
       tree.add(tmp);
     }
 
-    assertEquals(size, tree.getSize());
+    assertEquals(copySize, tree.getSize());
 
     for (var e : toCheck) {
       tree.remove(e);
-      assertEquals(--size, tree.getSize());
+      assertEquals(--copySize, tree.getSize());
+    }
+
+    tree.clear();
+    assertEquals(0, tree.getSize());
+    int sizeUnique = rnd.nextInt(size);
+    int realSize = 0;
+
+    for (int i = 0; i < size; ++i) {
+      long tmp = 0;
+
+      boolean flag = true;
+      while (flag) {
+        flag = false;
+        tmp = rnd.nextLong();
+        for (var e : toCheck) {
+          if (tmp == e) {
+            flag = true;
+            break;
+          }
+        }
+      }
+
+      toCheck[i] = tmp;
+      for (int j = 0; j <= i - sizeUnique; j+=10) {
+        tree.add(tmp);
+        ++realSize;
+      }
+
+      tree.add(tmp);
+      ++realSize;
+    }
+
+    assertEquals(realSize, tree.getSize());
+
+    for (int i = 0; i < size; ++i) {
+      tree.delete(toCheck[i]);
+      if (i < sizeUnique) {
+        assertEquals(--realSize, tree.getSize());
+      } else {
+        realSize -= (i - sizeUnique) / 10 + 2;
+        assertEquals(realSize, tree.getSize());
+      }
     }
   }
 }
