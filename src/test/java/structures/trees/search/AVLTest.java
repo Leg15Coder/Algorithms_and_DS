@@ -3,10 +3,10 @@ package structures.trees.search;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-class TreapTest extends SearchTreeTest {
+class AVLTest extends SearchTreeTest {
   @BeforeEach
   void init() {
-    this.tree = new Treap<>();
+    this.tree = new AVLTree<>();
     this.size = rnd.nextInt(1,10000);
   }
 
