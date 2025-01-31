@@ -1,6 +1,13 @@
 package sortings;
 
+import structures.arrays.ArrayList;
+import structures.basic.Heap;
 import structures.basic.Queue;
+
+import java.util.Random;
+
+import static sortings.Selection.partition;
+import static sortings.Selection.quickSelect;
 
 public class Sortings {
   public static <T extends Comparable<T>> long mergeSort(T[] array) { // todo JUnit test for count
@@ -137,37 +144,41 @@ public class Sortings {
     }
   }
 
+  public static <T extends Comparable<T>> void insertionSort(T[] array) {}
+
   public static <T extends Comparable<T>> void quickSort(T[] array) {
     quickSort(array, 0, array.length);
   }
 
   private static <T extends Comparable<T>> void quickSort(T[] array, int left, int right) {
     if (left < right) {
-      int middle = partition(array, left, right);
+      T pivot = quickSelect(array, (right + left) / 2, left, right);
+      int middle = partition(array, pivot, left, right);
 
       quickSort(array, left, middle);
-      quickSort(array, middle, right);
+      quickSort(array, middle + 1, right);
     }
   }
 
-  private static <T extends Comparable<T>> int partition(T[] array, int left, int right) {
-    right--;
-    T pivot = array[right];
-    int index = left;
+  public static <T extends Comparable<T>> void heapSort(T[] array) {
+    ArrayList<T> list = new ArrayList<>();
 
-    for (int i = left; i < right; i++) {
-      if (array[i].compareTo(pivot) <= 0) {
-        T temp = array[index];
-        array[index] = array[i];
-        array[i] = temp;
-        index++;
-      }
+    for (var element : array) {
+      list.insert(element);
     }
 
-    T temp = array[index];
-    array[index] = array[right];
-    array[right] = temp;
+    Heap<T> heap = new Heap<>(list);
 
-    return index;
-  }
+    for (int i = 0; i < array.length; ++i) {
+      array[i] = heap.extract();
+    }
+  } // todo remake arrays to the way create them from static array
+
+  public static <T extends Comparable<T>> void StalinSort(T[] array) {}
+
+  public static <T extends Comparable<T>> void miracleSort(T[] array) {}
+
+  public static <T extends Comparable<T>> void randomSort(T[] array) {}
+
+  public static <T extends Comparable<T>> void countingSort(T[] array) {}
 }

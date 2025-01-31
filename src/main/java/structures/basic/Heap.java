@@ -1,21 +1,46 @@
 package structures.basic;
 
+import structures.arrays.ArrayList;
+
 public class Heap<T extends Comparable<T>> {
   private final DynamicMemory<T> HeapArray;
-  private boolean IsMin = true;
+  private boolean isMin = true;
   private int size = 0;
 
-  public Heap(boolean IsMin) {
+  public Heap(boolean isMin) {
     this.HeapArray = new DynamicMemory<>();
-    this.IsMin = IsMin;
+    this.isMin = isMin;
   }
 
   public Heap() {
     this.HeapArray = new DynamicMemory<>();
   }
 
+  public Heap(ArrayList<T> array, boolean isMin) {
+    this.HeapArray = new DynamicMemory<>();
+    this.size = array.getSize();
+    this.isMin = isMin;
+    heapify(array);
+  }
+
+  public Heap(ArrayList<T> array) {
+    this.HeapArray = new DynamicMemory<>();
+    this.size = array.getSize();
+    heapify(array);
+  }
+
+  private void heapify(ArrayList<T> array) {
+    for (var element : array) {
+      this.HeapArray.add(element);
+    }
+
+    for (int i = array.getSize() / 2 - 1; i >= 0; --i) {
+      siftDown(i);
+    }
+  }
+
   private boolean compare(T left, T right) {
-    if (IsMin) {
+    if (isMin) {
       return left.compareTo(right) < 0;
     } else {
       return left.compareTo(right) > 0;

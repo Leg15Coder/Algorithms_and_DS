@@ -1,5 +1,6 @@
 package sortings;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -10,18 +11,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class SortingsTest {
 
   static Random rnd = new Random();
+  int size;
+  Long[] checker;
+  Long[] result;
 
-  @Test
-  void mergeSort() {
-    int size = rnd.nextInt(50000);
-    Long[] checker = new Long[size];
-    Long[] result = new Long[size];
+  @BeforeEach
+  void init() {
+    size = rnd.nextInt(100000);
+    checker = new Long[size];
+    result = new Long[size];
+
     for (int i = 0; i < size; ++i) {
       long tmp = rnd.nextLong();
       checker[i] = tmp;
       result[i] = tmp;
     }
     sort(checker);
+  }
+
+
+  @Test
+  void mergeSort() {
     Sortings.mergeSort(result);
     for (int i = 0; i < size; ++i) {
       assertEquals(result[i], checker[i]);
@@ -98,15 +108,6 @@ class SortingsTest {
 
   @Test
   void bubbleSort() {
-    int size = rnd.nextInt(10000);
-    Long[] checker = new Long[size];
-    Long[] result = new Long[size];
-    for (int i = 0; i < size; ++i) {
-      long tmp = rnd.nextLong();
-      checker[i] = tmp;
-      result[i] = tmp;
-    }
-    sort(checker);
     Sortings.bubbleSort(result);
     for (int i = 0; i < size; ++i) {
       assertEquals(result[i], checker[i]);
@@ -115,16 +116,15 @@ class SortingsTest {
 
   @Test
   void quickSort() {
-    int size = rnd.nextInt(10000);
-    Long[] checker = new Long[size];
-    Long[] result = new Long[size];
+    Sortings.quickSort(result);
     for (int i = 0; i < size; ++i) {
-      long tmp = rnd.nextLong();
-      checker[i] = tmp;
-      result[i] = tmp;
+      assertEquals(result[i], checker[i]);
     }
-    sort(checker);
-    Sortings.bubbleSort(result);
+  }
+
+  @Test
+  void heapSort() {
+    Sortings.heapSort(result);
     for (int i = 0; i < size; ++i) {
       assertEquals(result[i], checker[i]);
     }
