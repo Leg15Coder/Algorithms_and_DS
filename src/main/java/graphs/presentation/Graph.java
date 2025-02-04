@@ -20,5 +20,9 @@ public interface Graph<V extends Vertex, E extends Edge> {
 
   boolean isVertexIndexExists(int index);
 
+  int getColor(V vertex);
+
+  void setColor(V vertex, int color);
+
   V getAnyUnusedVertex(Iterable<V> usedVertexes);
 }

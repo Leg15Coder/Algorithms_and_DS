@@ -5,11 +5,14 @@ import graphs.exceptions.EdgeAlreadyExistsException;
 import graphs.exceptions.VertexIndexOutOfRangeException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<V, E> {
   private final boolean[][] matrix;
   private final List<V> vertexes;
+  private final Map<V, Integer> colors = new HashMap<>();
 
   public AdjacencyMatrix(int vertexCount) throws AdjacencyMatrixCreateException {
     if (vertexCount <= 0) {
@@ -18,7 +21,9 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
 
     this.vertexes = new ArrayList<>();
     for (int i = 0; i < vertexCount; ++i) {
-      vertexes.add((V) new ColoredVertex(i));
+      V vertex = (V) new ColoredVertex(i);
+      vertexes.add(vertex);
+      colors.put(vertex, 0);
     }
 
     this.matrix = new boolean[vertexCount][vertexCount];
@@ -26,25 +31,25 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
 
   @Override
   public void addEdge(E edge) throws EdgeAlreadyExistsException {
-    if (matrix[edge.getFirst().getIndex()][edge.getSecond().getIndex()]) {
+    if (matrix[edge.getFirst().index()][edge.getSecond().index()]) {
       throw new EdgeAlreadyExistsException("Невозможно добавить: Ребро " + edge + " уже существует");
     }
 
-    matrix[edge.getFirst().getIndex()][edge.getSecond().getIndex()] = true;
+    matrix[edge.getFirst().index()][edge.getSecond().index()] = true;
   }
 
   @Override
   public void removeEdge(E edge) throws EdgeAlreadyExistsException {
-    if (matrix[edge.getFirst().getIndex()][edge.getSecond().getIndex()]) {
+    if (matrix[edge.getFirst().index()][edge.getSecond().index()]) {
       throw new EdgeAlreadyExistsException("Невозможно удалить: Ребро " + edge + " не существует существует");
     }
 
-    matrix[edge.getFirst().getIndex()][edge.getSecond().getIndex()] = true;
+    matrix[edge.getFirst().index()][edge.getSecond().index()] = true;
   }
 
   @Override
   public boolean isEdge(E edge) {
-    return matrix[edge.getFirst().getIndex()][edge.getSecond().getIndex()];
+    return matrix[edge.getFirst().index()][edge.getSecond().index()];
   }
 
   @Override
@@ -52,7 +57,7 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
     int result = 0;
 
     for (int i = 0; i < matrix.length; ++i) {
-      if (i != vertex.getIndex() && matrix[vertex.getIndex()][i]) {
+      if (i != vertex.index() && matrix[vertex.index()][i]) {
         ++result;
       }
     }
@@ -65,7 +70,7 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
     List<V> result = new ArrayList<>();
 
     for (int i = 0; i < matrix.length; ++i) {
-      if (i != vertex.getIndex() && matrix[vertex.getIndex()][i]) {
+      if (i != vertex.index() && matrix[vertex.index()][i]) {
         result.add(vertexes.get(i));
       }
     }
@@ -85,6 +90,16 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
   @Override
   public boolean isVertexIndexExists(int index) {
     return index >= 0 && index < vertexes.size();
+  }
+
+  @Override
+  public int getColor(V vertex) {
+    return colors.get(vertex);
+  }
+
+  @Override
+  public void setColor(V vertex, int color) {
+    colors.put(vertex, color);
   }
 
   @Override
