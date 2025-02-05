@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<V, E> {
-  private final boolean[][] matrix;
+  private boolean[][] matrix;
   private final List<V> vertexes;
   private final Map<V, Integer> colors = new HashMap<>();
 
@@ -31,25 +31,25 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
 
   @Override
   public void addEdge(E edge) throws EdgeAlreadyExistsException {
-    if (matrix[edge.getFirst().index()][edge.getSecond().index()]) {
+    if (matrix[edge.first().index()][edge.second().index()]) {
       throw new EdgeAlreadyExistsException("Невозможно добавить: Ребро " + edge + " уже существует");
     }
 
-    matrix[edge.getFirst().index()][edge.getSecond().index()] = true;
+    matrix[edge.first().index()][edge.second().index()] = true;
   }
 
   @Override
   public void removeEdge(E edge) throws EdgeAlreadyExistsException {
-    if (matrix[edge.getFirst().index()][edge.getSecond().index()]) {
+    if (matrix[edge.first().index()][edge.second().index()]) {
       throw new EdgeAlreadyExistsException("Невозможно удалить: Ребро " + edge + " не существует существует");
     }
 
-    matrix[edge.getFirst().index()][edge.getSecond().index()] = true;
+    matrix[edge.first().index()][edge.second().index()] = true;
   }
 
   @Override
   public boolean isEdge(E edge) {
-    return matrix[edge.getFirst().index()][edge.getSecond().index()];
+    return matrix[edge.first().index()][edge.second().index()];
   }
 
   @Override
@@ -103,7 +103,37 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
   }
 
   @Override
+  public void clearColors() {
+    for (int i = 0; i < size(); ++i) {
+      V vertex = (V) new ColoredVertex(i);
+      colors.put(vertex, 0);
+    }
+  }
+
+  @Override
   public V getAnyUnusedVertex(Iterable<V> usedVertexes) {
+    Map<V, Boolean> used = new HashMap<>();
+    for (V v : usedVertexes) {
+      used.put(v, true);
+    }
+
+    for (V v : vertexes) {
+      boolean isUsed = used.getOrDefault(v, false);
+      if (!isUsed) {
+        return v;
+      }
+    }
+
     return null;
+  }
+
+  @Override
+  public int size() {
+    return vertexes.size();
+  }
+
+  @Override
+  public void clear() {
+    this.matrix = new boolean[size()][size()];
   }
 }

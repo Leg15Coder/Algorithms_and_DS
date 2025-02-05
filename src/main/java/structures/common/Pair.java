@@ -10,12 +10,12 @@ public class Pair<T, E> implements PairInterface<T, E> {
   }
 
   @Override
-  public T getFirst() {
+  public T first() {
     return first;
   }
 
   @Override
-  public E getSecond() {
+  public E second() {
     return second;
   }
 }

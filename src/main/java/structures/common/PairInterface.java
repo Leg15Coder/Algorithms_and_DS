@@ -1,7 +1,7 @@
 package structures.common;
 
 public interface PairInterface<T, E> {
-  T getFirst();
+  T first();
 
-  E getSecond();
+  E second();
 }

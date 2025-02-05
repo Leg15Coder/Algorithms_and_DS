@@ -24,5 +24,11 @@ public interface Graph<V extends Vertex, E extends Edge> {
 
   void setColor(V vertex, int color);
 
+  void clearColors();
+
   V getAnyUnusedVertex(Iterable<V> usedVertexes);
+
+  int size();
+
+  void clear();
 }

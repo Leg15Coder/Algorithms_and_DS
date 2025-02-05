@@ -32,18 +32,18 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
 
   @Override
   public void addEdge(E edge) throws EdgeAlreadyExistsException {
-    for (var v : list.get(edge.getFirst().index())) {
-      if (v.equals(edge.getSecond())) {
+    for (var v : list.get(edge.first().index())) {
+      if (v.equals(edge.second())) {
         throw new EdgeAlreadyExistsException("Невозможно добавить: Ребро " + edge + " уже существует");
       }
     }
 
-    list.get(edge.getFirst().index()).add((V) edge.getSecond());
+    list.get(edge.first().index()).add((V) edge.second());
   }
 
   @Override
   public void removeEdge(E edge) throws EdgeAlreadyExistsException {
-    boolean isDeleted = list.get(edge.getFirst().index()).remove((V) edge.getSecond());
+    boolean isDeleted = list.get(edge.first().index()).remove((V) edge.second());
     if (!isDeleted) {
       throw new EdgeAlreadyExistsException("Невозможно удалить: Ребро " + edge + " не существует существует");
     }
@@ -51,7 +51,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
 
   @Override
   public boolean isEdge(E edge) {
-    return list.get(edge.getFirst().index()).contains((V) edge.getSecond());
+    return list.get(edge.first().index()).contains((V) edge.second());
   }
 
   @Override
@@ -89,7 +89,38 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
   }
 
   @Override
+  public void clearColors() {
+    for (V v : vertexes) {
+      colors.put(v, 0);
+    }
+  }
+
+  @Override
   public V getAnyUnusedVertex(Iterable<V> usedVertexes) {
+    Map<V, Boolean> used = new HashMap<>();
+    for (V v : usedVertexes) {
+      used.put(v, true);
+    }
+
+    for (V v : vertexes) {
+      boolean isUsed = used.getOrDefault(v, false);
+      if (!isUsed) {
+        return v;
+      }
+    }
+
     return null;
+  }
+
+  @Override
+  public int size() {
+    return vertexes.size();
+  }
+
+  @Override
+  public void clear() {
+    for (var l : list) {
+      l.clear();
+    }
   }
 }
