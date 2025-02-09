@@ -31,13 +31,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
   }
 
   @Override
-  public void addEdge(E edge) throws EdgeAlreadyExistsException {
-    for (var v : list.get(edge.first().index())) {
-      if (v.equals(edge.second())) {
-        throw new EdgeAlreadyExistsException("Невозможно добавить: Ребро " + edge + " уже существует");
-      }
-    }
-
+  public void addEdge(E edge) {
     list.get(edge.first().index()).add((V) edge.second());
   }
 
@@ -61,7 +55,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
 
   @Override
   public List<V> neighbours(V vertex) {
-    return List.copyOf(list.get(vertex.index()));
+    return list.get(vertex.index());
   }
 
   @Override

@@ -1,41 +1,46 @@
 package graphs.traversals;
 
+import graphs.exceptions.CycleDetectedException;
 import graphs.presentation.Edge;
 import graphs.presentation.Graph;
 import graphs.presentation.Vertex;
 import structures.common.Pair;
 
-public class Search {
-  public interface DFSInterface<V extends Vertex> {
-     void execute(V current);
-  }
+import java.util.function.Consumer;
 
+public class Search {
   public static <V extends Vertex, E extends Edge> void dfs(
       Graph<V, E> graph,
       V current,
       Pair<Integer, Integer> colors,
-      DFSInterface<V> todoAtEnter,
-      DFSInterface<V> todoAtEnd) {
+      Consumer<V> todoAtEnter,
+      Consumer<V> todoAtEnd) throws CycleDetectedException {
 
-    if (graph.getColor(current) == colors.second) {
+    if (todoAtEnter != null) {
+      todoAtEnter.accept(current);
+    }
+
+    int currentColor = graph.getColor(current);
+    if (currentColor == colors.second) {
       // todo exception
     }
 
-    graph.setColor(current, colors.first());
-    if (todoAtEnter != null) {
-      todoAtEnter.execute(current);
+    if (currentColor == colors.first()) {
+      throw new CycleDetectedException("DFS зашёл в цикл");
     }
 
+    graph.setColor(current, colors.first());
+
     for (var v : graph.neighbours(current)) {
-      int currentColor = graph.getColor(current);
-      if (currentColor != colors.first() && currentColor != colors.second()) {
+      int vColor = graph.getColor(v);
+      if (vColor != colors.second()) {
         dfs(graph, v, colors, todoAtEnter, todoAtEnd);
       }
     }
 
     graph.setColor(current, colors.second());
     if (todoAtEnd != null) {
-      todoAtEnd.execute(current);
+      todoAtEnd.accept(current);
     }
   }
 }
