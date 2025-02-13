@@ -14,15 +14,15 @@ public class Search {
       V current,
       Pair<Integer, Integer> colors,
       Consumer<V> todoAtEnter,
-      Consumer<V> todoAtEnd) throws CycleDetectedException {
+      Consumer<V> todoAtEnd) {
 
     if (todoAtEnter != null) {
       todoAtEnter.accept(current);
     }
 
     int currentColor = graph.getColor(current);
-    if (currentColor == colors.second) {
-      // todo exception
+    if (currentColor == colors.second()) {
+      return;
     }
 
     if (currentColor == colors.first()) {

@@ -14,7 +14,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
   private final List<V> vertexes;
   private final Map<V, Integer> colors = new HashMap<>();
 
-  public AdjacencyList(int vertexCount) throws AdjacencyListCreateException {
+  public AdjacencyList(int vertexCount) {
     if (vertexCount <= 0) {
       throw new AdjacencyListCreateException("Количество вершин в графе должно быть натуральным числом");
     }
@@ -23,7 +23,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
     this.vertexes = new ArrayList<>();
 
     for (int i = 0; i < vertexCount; ++i) {
-      V vertex = (V) new ColoredVertex(i);
+      V vertex = (V) new BasicVertex(i);
       vertexes.add(vertex);
       this.list.add(new ArrayList<>());
       colors.put(vertex, 0);
@@ -36,7 +36,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
   }
 
   @Override
-  public void removeEdge(E edge) throws EdgeAlreadyExistsException {
+  public void removeEdge(E edge) {
     boolean isDeleted = list.get(edge.first().index()).remove((V) edge.second());
     if (!isDeleted) {
       throw new EdgeAlreadyExistsException("Невозможно удалить: Ребро " + edge + " не существует существует");
@@ -59,7 +59,7 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
   }
 
   @Override
-  public V getVertexByIndex(int index) throws VertexIndexOutOfRangeException {
+  public V getVertexByIndex(int index) {
     if (!isVertexIndexExists(index)){
       throw new VertexIndexOutOfRangeException("Такой вершине нет в графе");
     }
@@ -116,5 +116,24 @@ public class AdjacencyList<V extends Vertex, E extends Edge> implements Graph<V,
     for (var l : list) {
       l.clear();
     }
+  }
+
+  @Override
+  public Graph<V, E> transpose() {
+    Graph<V, E> result = new AdjacencyList<>(size());
+
+    for (int v = 0; v < size(); ++v) {
+      for (int u = 0; u < size(); ++u) {
+        V first = getVertexByIndex(v);
+        V second = getVertexByIndex(u);
+        E edge = (E) new BasicEdge(first, second);
+
+        if (v != u && !isEdge(edge)) {
+          result.addEdge(edge);
+        }
+      }
+    }
+
+    return result;
   }
 }

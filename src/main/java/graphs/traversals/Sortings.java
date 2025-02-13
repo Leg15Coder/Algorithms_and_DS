@@ -12,7 +12,7 @@ import java.util.List;
 import static graphs.traversals.Search.dfs;
 
 public class Sortings {
-  public static <V extends Vertex, E extends Edge> List<V> topsort(Graph<V, E> graph) throws CycleDetectedException {
+  public static <V extends Vertex, E extends Edge> List<V> topsort(Graph<V, E> graph) {
     List<V> result = new ArrayList<>();
     graph.clearColors();
     Pair<Integer, Integer> colors = new Pair<>(1, 2);

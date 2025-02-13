@@ -12,28 +12,28 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SortingsTest {
-  private Graph<ColoredVertex, SimpleEdge> dagGraph;
+  private Graph<BasicVertex, BasicEdge> dagGraph;
 
   @BeforeEach
   void setUp() throws EdgeAlreadyExistsException, AdjacencyListCreateException {
     dagGraph = new AdjacencyList<>(5);
 
-    Vertex v1 = new ColoredVertex(0);
-    Vertex v2 = new ColoredVertex(1);
-    Vertex v3 = new ColoredVertex(2);
-    Vertex v4 = new ColoredVertex(3);
-    Vertex v5 = new ColoredVertex(4);
+    Vertex v1 = new BasicVertex(0);
+    Vertex v2 = new BasicVertex(1);
+    Vertex v3 = new BasicVertex(2);
+    Vertex v4 = new BasicVertex(3);
+    Vertex v5 = new BasicVertex(4);
 
-    dagGraph.addEdge(new SimpleEdge(v1, v2));
-    dagGraph.addEdge(new SimpleEdge(v1, v3));
-    dagGraph.addEdge(new SimpleEdge(v3, v4));
-    dagGraph.addEdge(new SimpleEdge(v2, v4));
-    dagGraph.addEdge(new SimpleEdge(v4, v5));
+    dagGraph.addEdge(new BasicEdge(v1, v2));
+    dagGraph.addEdge(new BasicEdge(v1, v3));
+    dagGraph.addEdge(new BasicEdge(v3, v4));
+    dagGraph.addEdge(new BasicEdge(v2, v4));
+    dagGraph.addEdge(new BasicEdge(v4, v5));
   }
 
   @Test
   void testTopSortOnDAG() {
-    List<ColoredVertex> sorted = Sortings.topsort(dagGraph);
+    List<BasicVertex> sorted = Sortings.topsort(dagGraph);
     System.out.println(sorted);
     assertValidTopologicalSort(dagGraph, sorted);
   }
@@ -41,20 +41,20 @@ class SortingsTest {
   @Test
   void testLargeRandomDAG() throws AdjacencyMatrixCreateException, EdgeAlreadyExistsException {
     int size = new Random().nextInt(10_000) + 1;
-    Graph<ColoredVertex, SimpleEdge> largeGraph = generateRandomDAG(size);
-    List<ColoredVertex> sorted = Sortings.topsort(largeGraph);
+    Graph<BasicVertex, BasicEdge> largeGraph = generateRandomDAG(size);
+    List<BasicVertex> sorted = Sortings.topsort(largeGraph);
 
     assertEquals(size, sorted.size());
     assertValidTopologicalSort(largeGraph, sorted);
   }
 
-  private Graph<ColoredVertex, SimpleEdge> generateRandomDAG(int size) throws EdgeAlreadyExistsException, AdjacencyMatrixCreateException {
-    Graph<ColoredVertex, SimpleEdge> graph = new AdjacencyMatrix<>(size);
-    List<ColoredVertex> vertices = new ArrayList<>();
+  private Graph<BasicVertex, BasicEdge> generateRandomDAG(int size) throws EdgeAlreadyExistsException, AdjacencyMatrixCreateException {
+    Graph<BasicVertex, BasicEdge> graph = new AdjacencyMatrix<>(size);
+    List<BasicVertex> vertices = new ArrayList<>();
 
     // Добавляем вершины
     for (int i = 0; i < size; i++) {
-      ColoredVertex v = new ColoredVertex(i);
+      BasicVertex v = new BasicVertex(i);
       vertices.add(v);
     }
 
@@ -64,7 +64,7 @@ class SortingsTest {
       for (int j = 0; j < edges; j++) {
         int target = rand.nextInt(size);
         if (i < target) {
-          SimpleEdge edge = new SimpleEdge(vertices.get(i), vertices.get(target));
+          BasicEdge edge = new BasicEdge(vertices.get(i), vertices.get(target));
           if (!graph.isEdge(edge)) {
             graph.addEdge(edge);
           }
@@ -75,15 +75,15 @@ class SortingsTest {
     return graph;
   }
 
-  private void assertValidTopologicalSort(Graph<ColoredVertex, SimpleEdge> graph, List<ColoredVertex> sorted) {
-    Map<ColoredVertex, Integer> position = new HashMap<>();
+  private void assertValidTopologicalSort(Graph<BasicVertex, BasicEdge> graph, List<BasicVertex> sorted) {
+    Map<BasicVertex, Integer> position = new HashMap<>();
     for (int i = 0; i < sorted.size(); ++i) {
       position.put(sorted.get(i), i);
     }
 
     for (int i = 0; i < graph.size(); ++i) {
-      ColoredVertex v = new ColoredVertex(i);
-      for (ColoredVertex neighbor : graph.neighbours(v)) {
+      BasicVertex v = new BasicVertex(i);
+      for (BasicVertex neighbor : graph.neighbours(v)) {
         assertTrue(position.get(v) < position.get(neighbor));
       }
     }

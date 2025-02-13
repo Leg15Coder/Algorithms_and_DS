@@ -2,11 +2,11 @@ package graphs.presentation;
 
 import java.util.Objects;
 
-public record ColoredVertex(int index) implements Vertex {
+public record BasicVertex(int index) implements Vertex {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ColoredVertex that)) return false;
+    if (!(o instanceof BasicVertex that)) return false;
     return index == that.index;
   }
 

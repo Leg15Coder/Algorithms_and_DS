@@ -15,7 +15,7 @@ import java.util.Set;
 import static graphs.traversals.Search.dfs;
 
 public class Cycle {
-  public static <V extends Vertex, E extends Edge> boolean hasCycle(Graph<V, E> graph) throws VertexIndexOutOfRangeException {
+  public static <V extends Vertex, E extends Edge> boolean hasCycle(Graph<V, E> graph) {
     graph.clearColors();
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
 
@@ -33,7 +33,7 @@ public class Cycle {
     return false;
   }
 
-  public static <V extends Vertex, E extends Edge> List<V> getAnyCycle(Graph<V, E> graph) throws VertexIndexOutOfRangeException {
+  public static <V extends Vertex, E extends Edge> List<V> getAnyCycle(Graph<V, E> graph) {
     graph.clearColors();
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
     List<V> visited = new ArrayList<>();

@@ -1,14 +1,11 @@
 package graphs.presentation;
 
-import graphs.exceptions.EdgeAlreadyExistsException;
-import graphs.exceptions.VertexIndexOutOfRangeException;
-
 import java.util.List;
 
 public interface Graph<V extends Vertex, E extends Edge> {
-  void addEdge(E edge) throws EdgeAlreadyExistsException;
+  void addEdge(E edge);
 
-  void removeEdge(E edge) throws EdgeAlreadyExistsException;
+  void removeEdge(E edge);
 
   boolean isEdge(E edge);
 
@@ -16,7 +13,7 @@ public interface Graph<V extends Vertex, E extends Edge> {
 
   List<V> neighbours(V vertex);
 
-  V getVertexByIndex(int index) throws VertexIndexOutOfRangeException;
+  V getVertexByIndex(int index);
 
   boolean isVertexIndexExists(int index);
 
@@ -31,4 +28,6 @@ public interface Graph<V extends Vertex, E extends Edge> {
   int size();
 
   void clear();
+
+  Graph<V, E> transpose();
 }
