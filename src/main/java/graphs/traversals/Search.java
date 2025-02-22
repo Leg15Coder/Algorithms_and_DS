@@ -6,11 +6,14 @@ import graphs.presentation.Graph;
 import graphs.presentation.Vertex;
 import structures.common.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class Search {
   public static <V extends Vertex, E extends Edge> void dfs(
       Graph<V, E> graph,
+      Map<V, Integer> colorSet,
       V current,
       Pair<Integer, Integer> colors,
       Consumer<V> todoAtEnter,
@@ -20,7 +23,7 @@ public class Search {
       todoAtEnter.accept(current);
     }
 
-    int currentColor = graph.getColor(current);
+    int currentColor = colorSet.getOrDefault(current, 0);
     if (currentColor == colors.second()) {
       return;
     }
@@ -29,16 +32,16 @@ public class Search {
       throw new CycleDetectedException("DFS зашёл в цикл");
     }
 
-    graph.setColor(current, colors.first());
+    colorSet.put(current, colors.first());
 
     for (var v : graph.neighbours(current)) {
-      int vColor = graph.getColor(v);
+      int vColor = colorSet.getOrDefault(v, 0);
       if (vColor != colors.second()) {
-        dfs(graph, v, colors, todoAtEnter, todoAtEnd);
+        dfs(graph, colorSet, v, colors, todoAtEnter, todoAtEnd);
       }
     }
 
-    graph.setColor(current, colors.second());
+    colorSet.put(current, colors.second());
     if (todoAtEnd != null) {
       todoAtEnd.accept(current);
     }

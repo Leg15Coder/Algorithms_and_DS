@@ -2,11 +2,11 @@ package graphs.presentation;
 
 import java.util.Objects;
 
-public record BasicVertex(int index) implements Vertex, Comparable<Vertex> {
+public record GraphVertex<V extends Vertex, E extends Edge>(int index, Graph<V, E> graph) implements Vertex, Comparable<Vertex> {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof BasicVertex that)) return false;
+    if (!(o instanceof GraphVertex that)) return false;
     return index == that.index;
   }
 
@@ -18,10 +18,5 @@ public record BasicVertex(int index) implements Vertex, Comparable<Vertex> {
   @Override
   public int compareTo(Vertex o) {
     return Integer.compare(index, o.index());
-  }
-
-  @Override
-  public String toString() {
-    return index + "";
   }
 }

@@ -7,21 +7,23 @@ import graphs.presentation.Vertex;
 import structures.common.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static graphs.traversals.Search.dfs;
 
 public class Sortings {
   public static <V extends Vertex, E extends Edge> List<V> topsort(Graph<V, E> graph) {
     List<V> result = new ArrayList<>();
-    graph.clearColors();
+    Map<V, Integer> colorSet = new HashMap<>();
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
 
     while (result.size() < graph.size()) {
       V current = graph.getAnyUnusedVertex(result);
 
       try {
-        dfs(graph, current, colors, null, result::add);
+        dfs(graph, colorSet, current, colors, null, result::add);
       } catch (CycleDetectedException e) {
         throw new CycleDetectedException("Нельзя топологически отсортировать граф с циклами");
       }

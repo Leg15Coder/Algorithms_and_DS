@@ -7,23 +7,20 @@ import graphs.presentation.Graph;
 import graphs.presentation.Vertex;
 import structures.common.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static graphs.traversals.Search.dfs;
 
 public class Cycle {
   public static <V extends Vertex, E extends Edge> boolean hasCycle(Graph<V, E> graph) {
-    graph.clearColors();
+    Map<V, Integer> colorSet = new HashMap<>();
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
 
     for (int i = 0; i < graph.size(); ++i) {
       V vertex = graph.getVertexByIndex(i);
-      if (graph.getColor(vertex) != 2) {
+      if (colorSet.getOrDefault(vertex, 0) != 2) {
         try {
-          dfs(graph, vertex, colors, null, null);
+          dfs(graph, colorSet, vertex, colors, null, null);
         } catch (CycleDetectedException e) {
           return true;
         }
@@ -34,16 +31,16 @@ public class Cycle {
   }
 
   public static <V extends Vertex, E extends Edge> List<V> getAnyCycle(Graph<V, E> graph) {
-    graph.clearColors();
+    Map<V, Integer> colorSet = new HashMap<>();
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
     List<V> visited = new ArrayList<>();
     Set<V> toDelete = new HashSet<>();
 
     for (int i = 0; i < graph.size(); ++i) {
       V vertex = graph.getVertexByIndex(i);
-      if (graph.getColor(vertex) != 2) {
+      if (colorSet.getOrDefault(vertex, 0) != 2) {
         try {
-          dfs(graph, vertex, colors, visited::add, toDelete::add);
+          dfs(graph, colorSet, vertex, colors, visited::add, toDelete::add);
         } catch (CycleDetectedException e) {
           V last = visited.get(visited.size() - 1);
           List<V> result = new ArrayList<>();

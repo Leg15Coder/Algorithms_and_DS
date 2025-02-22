@@ -1,5 +1,6 @@
 package graphs.presentation;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface Graph<V extends Vertex, E extends Edge> {
@@ -11,17 +12,11 @@ public interface Graph<V extends Vertex, E extends Edge> {
 
   int neighboursCount(V vertex);
 
-  List<V> neighbours(V vertex);
+  Collection<V> neighbours(V vertex);
 
   V getVertexByIndex(int index);
 
   boolean isVertexIndexExists(int index);
-
-  int getColor(V vertex);
-
-  void setColor(V vertex, int color);
-
-  void clearColors();
 
   V getAnyUnusedVertex(Iterable<V> usedVertexes);
 
@@ -30,4 +25,6 @@ public interface Graph<V extends Vertex, E extends Edge> {
   void clear();
 
   Graph<V, E> transpose();
+
+  Graph<V, E> subGraph(Collection<V> subVertexes);
 }

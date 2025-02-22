@@ -3,27 +3,26 @@ package graphs.presentation;
 import graphs.exceptions.AdjacencyMatrixCreateException;
 import graphs.exceptions.EdgeAlreadyExistsException;
 import graphs.exceptions.VertexIndexOutOfRangeException;
+import graphs.presentation.factories.GraphComponentsFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<V, E> {
+  private final GraphComponentsFactory<V, E> factory;
   private boolean[][] matrix;
   private final List<V> vertexes;
-  private final Map<V, Integer> colors = new HashMap<>();
 
-  public AdjacencyMatrix(int vertexCount) {
+  public AdjacencyMatrix(int vertexCount, GraphComponentsFactory<V, E> factory) {
     if (vertexCount <= 0) {
       throw new AdjacencyMatrixCreateException("Количество вершин в графе должно быть натуральным числом");
     }
 
     this.vertexes = new ArrayList<>();
+    this.factory = factory;
+
     for (int i = 0; i < vertexCount; ++i) {
-      V vertex = (V) new BasicVertex(i);
+      V vertex = factory.createVertex(i);
       vertexes.add(vertex);
-      colors.put(vertex, 0);
     }
 
     this.matrix = new boolean[vertexCount][vertexCount];
@@ -66,7 +65,7 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
   }
 
   @Override
-  public List<V> neighbours(V vertex) {
+  public Collection<V> neighbours(V vertex) {
     List<V> result = new ArrayList<>();
 
     for (int i = 0; i < matrix.length; ++i) {
@@ -90,24 +89,6 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
   @Override
   public boolean isVertexIndexExists(int index) {
     return index >= 0 && index < vertexes.size();
-  }
-
-  @Override
-  public int getColor(V vertex) {
-    return colors.get(vertex);
-  }
-
-  @Override
-  public void setColor(V vertex, int color) {
-    colors.put(vertex, color);
-  }
-
-  @Override
-  public void clearColors() {
-    for (int i = 0; i < size(); ++i) {
-      V vertex = (V) new BasicVertex(i);
-      colors.put(vertex, 0);
-    }
   }
 
   @Override
@@ -139,14 +120,30 @@ public class AdjacencyMatrix<V extends Vertex, E extends Edge> implements Graph<
 
   @Override
   public Graph<V, E> transpose() {
-    Graph<V, E> result = new AdjacencyMatrix<>(size());
+    Graph<V, E> result = new AdjacencyMatrix<>(size(), factory);
 
     for (int v = 0; v < size(); ++v) {
       for (int u = 0; u < size(); ++u) {
         if (v != u && !matrix[v][u]) {
           V first = getVertexByIndex(v);
           V second = getVertexByIndex(u);
-          result.addEdge((E) new BasicEdge(first, second));
+          result.addEdge(factory.createEdge(first, second));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  @Override
+  public Graph<V, E> subGraph(Collection<V> subVertexes) {
+    Graph<V, E> result = new AdjacencyMap<>(subVertexes, factory);
+
+    for (V v : subVertexes) {
+      int vIndex = v.index();
+      for (int i = 0; i < size(); ++i) {
+        if (matrix[vIndex][i]) {
+          result.addEdge(factory.createEdge(v, factory.createVertex(i)));
         }
       }
     }
