@@ -4,17 +4,17 @@ import graphs.exceptions.CycleDetectedException;
 import graphs.presentation.Edge;
 import graphs.presentation.Graph;
 import graphs.presentation.Vertex;
+import graphs.presentation.factory.GraphFactory;
+import graphs.presentation.visitors.Visitor;
 import structures.common.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class Search {
   public static <V extends Vertex, E extends Edge> void dfs(
-      Graph<V, E> graph,
-      Map<V, Integer> colorSet,
       V current,
+      Graph<V, E> graph,
+      Visitor visitor,
       Pair<Integer, Integer> colors,
       Consumer<V> todoAtEnter,
       Consumer<V> todoAtEnd) {
@@ -23,7 +23,7 @@ public class Search {
       todoAtEnter.accept(current);
     }
 
-    int currentColor = colorSet.getOrDefault(current, 0);
+    int currentColor = visitor.visit(current);
     if (currentColor == colors.second()) {
       return;
     }
@@ -32,16 +32,16 @@ public class Search {
       throw new CycleDetectedException("DFS зашёл в цикл");
     }
 
-    colorSet.put(current, colors.first());
+    visitor.update(current, colors.first());
 
     for (var v : graph.neighbours(current)) {
-      int vColor = colorSet.getOrDefault(v, 0);
+      int vColor = visitor.getState(v);
       if (vColor != colors.second()) {
-        dfs(graph, colorSet, v, colors, todoAtEnter, todoAtEnd);
+        dfs(v, graph, visitor, colors, todoAtEnter, todoAtEnd);
       }
     }
 
-    colorSet.put(current, colors.second());
+    visitor.leave(current, colors.second());
     if (todoAtEnd != null) {
       todoAtEnd.accept(current);
     }

@@ -1,7 +1,7 @@
 package graphs.presentation;
 
-import structures.common.PairInterface;
+public interface Edge<V extends Vertex> {
+  V from();
 
-public interface Edge extends PairInterface<Vertex, Vertex> {
-  Edge reverse();
+  V to();
 }

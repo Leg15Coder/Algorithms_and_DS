@@ -1,10 +1,10 @@
 package graphs.checkers;
 
 import graphs.exceptions.CycleDetectedException;
-import graphs.exceptions.VertexIndexOutOfRangeException;
 import graphs.presentation.Edge;
 import graphs.presentation.Graph;
 import graphs.presentation.Vertex;
+import graphs.presentation.visitors.Visitor;
 import structures.common.Pair;
 
 import java.util.*;
@@ -12,15 +12,13 @@ import java.util.*;
 import static graphs.traversals.Search.dfs;
 
 public class Cycle {
-  public static <V extends Vertex, E extends Edge> boolean hasCycle(Graph<V, E> graph) {
-    Map<V, Integer> colorSet = new HashMap<>();
+  public static <V extends Vertex, E extends Edge> boolean hasCycle(Graph<V, E> graph, Visitor<V> visitor) {
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
 
-    for (int i = 0; i < graph.size(); ++i) {
-      V vertex = graph.getVertexByIndex(i);
-      if (colorSet.getOrDefault(vertex, 0) != 2) {
+    for (V vertex : graph.getAllVertexes()) {
+      if (visitor.getState(vertex) != 2) {
         try {
-          dfs(graph, colorSet, vertex, colors, null, null);
+          dfs(vertex, graph, visitor, colors, null, null);
         } catch (CycleDetectedException e) {
           return true;
         }
@@ -30,17 +28,15 @@ public class Cycle {
     return false;
   }
 
-  public static <V extends Vertex, E extends Edge> List<V> getAnyCycle(Graph<V, E> graph) {
-    Map<V, Integer> colorSet = new HashMap<>();
+  public static <V extends Vertex, E extends Edge> List<V> getAnyCycle(Graph<V, E> graph, Visitor<V> visitor) {
     Pair<Integer, Integer> colors = new Pair<>(1, 2);
     List<V> visited = new ArrayList<>();
     Set<V> toDelete = new HashSet<>();
 
-    for (int i = 0; i < graph.size(); ++i) {
-      V vertex = graph.getVertexByIndex(i);
-      if (colorSet.getOrDefault(vertex, 0) != 2) {
+    for (V vertex : graph.getAllVertexes()) {
+      if (visitor.getState(vertex) != 2) {
         try {
-          dfs(graph, colorSet, vertex, colors, visited::add, toDelete::add);
+          dfs(vertex, graph, visitor, colors, visited::add, toDelete::add);
         } catch (CycleDetectedException e) {
           V last = visited.get(visited.size() - 1);
           List<V> result = new ArrayList<>();

@@ -1,8 +1,5 @@
 package graphs.presentation;
 
-import java.util.Collection;
-import java.util.List;
-
 public interface Graph<V extends Vertex, E extends Edge> {
   void addEdge(E edge);
 
@@ -10,21 +7,37 @@ public interface Graph<V extends Vertex, E extends Edge> {
 
   boolean isEdge(E edge);
 
+  void addVertex(V vertex);
+
+  void removeVertex(V vertex);
+
+  boolean isVertexExists(V vertex);
+
   int neighboursCount(V vertex);
 
-  Collection<V> neighbours(V vertex);
+  Iterable<V> neighbours(V vertex);
 
-  V getVertexByIndex(int index);
-
-  boolean isVertexIndexExists(int index);
+  Iterable<E> adjacentEdges(V vertex);
 
   V getAnyUnusedVertex(Iterable<V> usedVertexes);
 
-  int size();
+  E getAnyUnusedEdge(Iterable<E> usedEdges);
 
-  void clear();
+  Iterable<V> getAllUnusedVertex(Iterable<V> usedVertexes);
+
+  Iterable<E> getAllUnusedEdge(Iterable<E> usedEdges);
+
+  Iterable<V> getAllVertexes();
+
+  Iterable<E> getAllEdges();
 
   Graph<V, E> transpose();
 
-  Graph<V, E> subGraph(Collection<V> subVertexes);
+  Graph<V, E> createSubGraph(Iterable<V> subVertexes);
+
+  int vertexCount();
+
+  int edgesCount();
+
+  void clear();
 }
