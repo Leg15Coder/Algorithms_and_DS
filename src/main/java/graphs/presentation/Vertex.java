@@ -1,3 +1,3 @@
 package graphs.presentation;
 
-public interface Vertex extends Comparable<Vertex> { }
+public interface Vertex {}

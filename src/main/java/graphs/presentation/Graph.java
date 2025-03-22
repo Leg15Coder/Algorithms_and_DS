@@ -1,6 +1,6 @@
 package graphs.presentation;
 
-public interface Graph<V extends Vertex, E extends Edge> {
+public interface Graph<V extends Vertex, E extends Edge<V>> {
   void addEdge(E edge);
 
   void removeEdge(E edge);
@@ -19,14 +19,6 @@ public interface Graph<V extends Vertex, E extends Edge> {
 
   Iterable<E> adjacentEdges(V vertex);
 
-  V getAnyUnusedVertex(Iterable<V> usedVertexes);
-
-  E getAnyUnusedEdge(Iterable<E> usedEdges);
-
-  Iterable<V> getAllUnusedVertex(Iterable<V> usedVertexes);
-
-  Iterable<E> getAllUnusedEdge(Iterable<E> usedEdges);
-
   Iterable<V> getAllVertexes();
 
   Iterable<E> getAllEdges();
@@ -38,6 +30,8 @@ public interface Graph<V extends Vertex, E extends Edge> {
   int vertexCount();
 
   int edgesCount();
+
+  boolean isDirected();
 
   void clear();
 }

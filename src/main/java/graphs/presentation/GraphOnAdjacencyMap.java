@@ -3,17 +3,26 @@ package graphs.presentation;
 import graphs.exceptions.EdgeNotExistsException;
 import graphs.exceptions.EdgeOutOfGraphException;
 import graphs.exceptions.VertexNotExistsException;
+import graphs.presentation.factory.BasicEdge;
 import graphs.presentation.factory.GraphFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, E> {
+public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements Graph<V, E> {
   private final GraphFactory<V, E> factory;
   private final Map<V, List<V>> map;
+  private final boolean isDirected;
 
-  public AdjacencyMap(Iterable<V> vertexes, GraphFactory<V, E> graphFactory) {
+  public GraphOnAdjacencyMap(
+      Iterable<V> vertexes, GraphFactory<V, E> graphFactory, boolean isDirected) {
     this.map = new HashMap<>();
     this.factory = graphFactory;
+    this.isDirected = isDirected;
 
     for (V vertex : vertexes) {
       this.factory.saveVertex(vertex);
@@ -21,30 +30,51 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
     }
   }
 
+  public GraphOnAdjacencyMap(GraphFactory<V, E> graphFactory, boolean isDirected) {
+    this.map = new HashMap<>();
+    this.factory = graphFactory;
+    this.isDirected = isDirected;
+  }
+
   @Override
   public void addEdge(E edge) {
-    V from = (V) edge.from();
-    V to = (V) edge.to();
+    V from = edge.from();
+    V to = edge.to();
 
     if (!this.map.containsKey(from) || !this.map.containsKey(to)) {
-      throw new EdgeOutOfGraphException("Невозможно добавить данное ребро в граф: один или несколько концов лежат за его пределами");
+      throw new EdgeOutOfGraphException(
+          "Невозможно добавить данное ребро в граф: один или несколько концов лежат за его"
+              + " пределами");
     }
 
     this.factory.saveEdge(edge);
     this.map.get(from).add(to);
+
+    // Если граф неориентированный, добавляем обратную версию ребра
+    if (!this.isDirected) {
+      E reversedEdge = (E) ((BasicEdge<?>) edge).reverseArguments();
+      this.factory.saveEdge(reversedEdge);
+      this.map.get(to).add(from);
+    }
   }
 
   @Override
   public void removeEdge(E edge) {
-    V from = (V) edge.from();
-    V to = (V) edge.to();
+    V from = edge.from();
+    V to = edge.to();
 
+    // Проверка существования ребра
     if (!this.map.containsKey(from) || !this.map.containsKey(to)) {
       throw new EdgeOutOfGraphException("В графе нет ребра " + edge);
     }
 
     boolean result = this.map.get(from).remove(to);
-    
+
+    // Если граф неориентированный, удаляем обратную версию ребра
+    if (result && !this.isDirected) {
+      this.map.get(to).remove(from);
+    }
+
     if (!result) {
       throw new EdgeNotExistsException("В графе нет ребра " + edge);
     }
@@ -52,8 +82,8 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
 
   @Override
   public boolean isEdge(E edge) {
-    V from = (V) edge.from();
-    V to = (V) edge.to();
+    V from = edge.from();
+    V to = edge.to();
 
     if (!this.map.containsKey(from) || !this.map.containsKey(to)) {
       return false;
@@ -83,7 +113,7 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
     if (!isVertexExists(vertex)) {
       throw new VertexNotExistsException("В графе нет вершины " + vertex);
     }
-    
+
     return this.map.get(vertex).size();
   }
 
@@ -99,85 +129,10 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
   @Override
   public Iterable<E> adjacentEdges(V vertex) {
     List<E> result = new ArrayList<>();
-    
+
+    // Для каждой вершины находим соседей и создаём ребра
     for (V neighbour : neighbours(vertex)) {
       result.add(this.factory.createEdge(vertex, neighbour));
-    }
-    
-    return result;
-  }
-
-  @Override
-  public V getAnyUnusedVertex(Iterable<V> usedVertexes) {
-    Set<V> used = new HashSet<>();
-    for (V v : usedVertexes) {
-      used.add(v);
-    }
-
-    for (V v : map.keySet()) {
-      boolean isUsed = used.contains(v);
-      if (!isUsed) {
-        return v;
-      }
-    }
-
-    return null;
-  }
-
-  @Override
-  public E getAnyUnusedEdge(Iterable<E> usedEdges) {
-    Set<E> used = new HashSet<>();
-    for (E e : usedEdges) {
-      used.add(e);
-    }
-
-    for (V vertex : getAllVertexes()) {
-      for (V neighbour : neighbours(vertex)) {
-        E edge = this.factory.createEdge(vertex, neighbour);
-
-        if (!used.contains(edge)) {
-          return edge;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  @Override
-  public Iterable<V> getAllUnusedVertex(Iterable<V> usedVertexes) {
-    Map<V, Boolean> used = new HashMap<>();
-    for (V v : usedVertexes) {
-      used.put(v, true);
-    }
-    List<V> result = new ArrayList<>();
-
-    for (V v : map.keySet()) {
-      boolean isUsed = used.getOrDefault(v, false);
-      if (!isUsed) {
-        result.add(v);
-      }
-    }
-
-    return result;
-  }
-
-  @Override
-  public Iterable<E> getAllUnusedEdge(Iterable<E> usedEdges) {
-    Set<E> used = new HashSet<>();
-    for (E e : usedEdges) {
-      used.add(e);
-    }
-    List<E> result = new ArrayList<>();
-
-    for (V vertex : getAllVertexes()) {
-      for (V neighbour : neighbours(vertex)) {
-        E edge = this.factory.createEdge(vertex, neighbour);
-
-        if (!used.contains(edge)) {
-          result.add(edge);
-        }
-      }
     }
 
     return result;
@@ -192,6 +147,7 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
   public Iterable<E> getAllEdges() {
     List<E> result = new ArrayList<>();
 
+    // Для каждой вершины добавляем её рёбра
     for (V vertex : getAllVertexes()) {
       for (V neighbour : neighbours(vertex)) {
         result.add(this.factory.createEdge(vertex, neighbour));
@@ -218,18 +174,28 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
   }
 
   @Override
+  public boolean isDirected() {
+    return isDirected;
+  }
+
+  @Override
   public void clear() {
     this.map.clear();
   }
 
   @Override
   public Graph<V, E> transpose() {
-    Graph<V, E> result = new AdjacencyMap<>(map.keySet(), factory);
+    GraphOnAdjacencyMap<V, E> result =
+        new GraphOnAdjacencyMap<>(map.keySet(), factory, isDirected);
 
+    // Транспонируем граф (меняем направления рёбер)
     for (V v : map.keySet()) {
       for (V u : map.get(v)) {
-        E edge = factory.createEdge(u, v);
-        result.addEdge(edge);
+        if (!result.map.containsKey(u)) {
+          result.map.put(u, new ArrayList<>());
+        }
+
+        result.map.get(u).add(v);
       }
     }
 
@@ -242,9 +208,10 @@ public class AdjacencyMap<V extends Vertex, E extends Edge> implements Graph<V, 
     for (V v : subVertexes) {
       sub.add(v);
     }
-    
-    Graph<V, E> result = new AdjacencyMap<>(subVertexes, factory);
 
+    Graph<V, E> result = new GraphOnAdjacencyMap<>(subVertexes, factory, isDirected);
+
+    // Создаём подграф только с выбранными вершинами и рёбрами
     for (V v : subVertexes) {
       for (V u : map.get(v)) {
         if (sub.contains(u)) {
