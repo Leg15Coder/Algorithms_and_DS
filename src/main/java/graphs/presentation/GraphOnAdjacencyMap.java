@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements Graph<V, E> {
   private final GraphFactory<V, E> factory;
-  private final Map<V, List<V>> map;
+  private final Map<V, List<E>> map;
   private final boolean isDirected;
 
   public GraphOnAdjacencyMap(
@@ -48,13 +48,13 @@ public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements
     }
 
     this.factory.saveEdge(edge);
-    this.map.get(from).add(to);
+    this.map.get(from).add(edge);
 
     // Если граф неориентированный, добавляем обратную версию ребра
     if (!this.isDirected) {
       E reversedEdge = (E) ((BasicEdge<?>) edge).reverseArguments();
       this.factory.saveEdge(reversedEdge);
-      this.map.get(to).add(from);
+      this.map.get(to).add((E) edge.reverseArguments());
     }
   }
 
@@ -123,19 +123,12 @@ public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements
       throw new VertexNotExistsException("В графе нет вершины " + vertex);
     }
 
-    return this.map.get(vertex);
+    return this.map.get(vertex).stream().map(E::to).toList();
   }
 
   @Override
   public Iterable<E> adjacentEdges(V vertex) {
-    List<E> result = new ArrayList<>();
-
-    // Для каждой вершины находим соседей и создаём ребра
-    for (V neighbour : neighbours(vertex)) {
-      result.add(this.factory.createEdge(vertex, neighbour));
-    }
-
-    return result;
+    return this.map.get(vertex);
   }
 
   @Override
@@ -149,9 +142,7 @@ public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements
 
     // Для каждой вершины добавляем её рёбра
     for (V vertex : getAllVertexes()) {
-      for (V neighbour : neighbours(vertex)) {
-        result.add(this.factory.createEdge(vertex, neighbour));
-      }
+      result.add((E) this.map.get(vertex));
     }
 
     return result;
@@ -190,12 +181,12 @@ public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements
 
     // Транспонируем граф (меняем направления рёбер)
     for (V v : map.keySet()) {
-      for (V u : map.get(v)) {
+      for (E u : map.get(v)) {
         if (!result.map.containsKey(u)) {
-          result.map.put(u, new ArrayList<>());
+          result.map.put(u.to(), new ArrayList<>());
         }
 
-        result.map.get(u).add(v);
+        result.map.get(u).add((E) u.reverseArguments().from());
       }
     }
 
@@ -213,9 +204,9 @@ public class GraphOnAdjacencyMap<V extends Vertex, E extends Edge<V>> implements
 
     // Создаём подграф только с выбранными вершинами и рёбрами
     for (V v : subVertexes) {
-      for (V u : map.get(v)) {
-        if (sub.contains(u)) {
-          result.addEdge(factory.createEdge(v, u));
+      for (E u : map.get(v)) {
+        if (sub.contains(u.to())) {
+          result.addEdge(u);
         }
       }
     }
